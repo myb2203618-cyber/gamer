@@ -14,13 +14,27 @@
   device-orientation-permission-ui="enabled: false">
 
   <a-assets>
-    <a-asset-item id="welcome" src="asset/logo.glb"></a-asset-item>
+    <a-asset-item id="logo" src="asset/logo.glb"></a-asset-item>
+    <a-asset-item id="node" src="asset/nut.glb"></a-asset-item>
+    <a-asset-item id="ans" src="asset/cautraloi.glb"></a-asset-item>
   </a-assets>
 
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
   <a-entity mindar-image-target="targetIndex: 0">
-    <a-gltf-model src="#welcome" position="0 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+    <a-entity id="welcome" visible="true">
+         <a-gltf-model src="#logo" position="0 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+         <a-gltf-model src="#node" position="0.5 0.6 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+         <a-gltf-model src="#node" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+         <a-gltf-model src="#node" position="0.5 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+    </a-entity>
+    <a-entity id="quiz" visible="false">
+        <a-gltf-model src="#ans" position="0 0.6 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model> 
+        <a-gltf-model src="#node" position="-1 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model src="#node" position="0 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model src="#node" position="1 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+    
+      </a-entity>
   </a-entity>
 
 </a-scene>
