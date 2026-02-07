@@ -5,7 +5,21 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-	<title>Document</title>
+     <script>
+         // Click: Ẩn scene hiện tại → hiện scene tiếp theo
+    AFRAME.registerComponent('scene-switch', {
+      schema: {
+        target: { type: 'selector' }
+      },
+      init: function () {
+        this.el.addEventListener('click', () => {
+          this.el.parentElement.setAttribute('visible', false);
+          this.data.target.setAttribute('visible', true);
+        });
+      }
+    });
+    </script>
+    <title>Document</title>
 </head>
 <body>
     <a-scene
@@ -19,21 +33,21 @@
     <a-asset-item id="ans" src="asset/cautraloi.glb"></a-asset-item>
   </a-assets>
 
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <a-camera position="0 0 0" look-controls="enabled: false"
+   cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-camera>
 
   <a-entity mindar-image-target="targetIndex: 0">
-    <a-entity id="welcome" visible="false">
+    <a-entity id="welcome" visible="true">
          <a-gltf-model src="#logo" position="0 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-         <a-gltf-model src="#node" position="0.5 0.6 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#node" position="0.5 0.6 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
          <a-gltf-model src="#node" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
          <a-gltf-model src="#node" position="0.5 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
     </a-entity>
-    <a-entity id="quiz" visible="true">
-        <a-gltf-model src="#ans" position="0 0.6 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model> 
-        <a-gltf-model src="#node" position="-1 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+    <a-entity id="quiz" visible="false">
+        <a-gltf-model src="#ans" position="0 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model> 
+        <a-gltf-model src="#node" position="-0.5 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
         <a-gltf-model src="#node" position="0 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model src="#node" position="1 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-    
+        <a-gltf-model src="#node" position="0.5 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
       </a-entity>
   </a-entity>
 
