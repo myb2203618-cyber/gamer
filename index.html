@@ -25,74 +25,74 @@
     ////////////////////////////////////////////////////////////////
     //////QUIZ - phancauhoi
     AFRAME.registerComponent('quiz-logic', {
-  init: function () {
-    // 1. Dữ liệu câu hỏi: 'correct' từ 0 đến 3 (tương ứng 4 nút bấm)
-    this.questions = [
-      { qImage: "asset/ans/c1.png", correct: 3 }, // Nút thứ 4 đúng
-      { qImage: "asset/ans/c2.png", correct: 1 }, // Nút thứ 2 đúng
-      { qImage: "asset/ans/c3.png", correct: 2 }, // Nút thứ 3 đúng
-      { qImage: "asset/ans/c4.png", correct: 2 }, // Nút thứ 1 đúng
-      { qImage: "asset/ans/c5.png", correct: 0 }  // Nút thứ 3 đúng
-    ];
+      init: function () {
+        // 1. Dữ liệu câu hỏi: 'correct' từ 0 đến 3 (tương ứng 4 nút bấm)
+        this.questions = [
+          { qImage: "#c1", correct: 3 }, // Nút thứ 4 đúng
+          { qImage: "#c2", correct: 1 }, // Nút thứ 2 đúng
+          { qImage: "#c3", correct: 2 }, // Nút thứ 3 đúng
+          { qImage: "#c4", correct: 2 }, // Nút thứ 1 đúng
+          { qImage: "#c5", correct: 0 }  // Nút thứ 3 đúng
+        ];
 
-    this.currentQuestionIndex = 0;
-    this.totalQuestions = 4; // Số câu hỏi cần trả lời để qua màn
-    
-    // Trộn ngẫu nhiên danh sách câu hỏi
-    this.questions = this.questions.sort(() => Math.random() - 0.5);
+        this.currentQuestionIndex = 0;
+        this.totalQuestions = 4; // Số câu hỏi cần trả lời để qua màn
 
-    // Lấy các thực thể từ HTML
-    this.questionDisplay = document.querySelector("#question-board");
-    
-    // Quan trọng: Chọn tất cả các nút có class .quiz-option
-    this.optionButtons = document.querySelectorAll(".quiz-option");
+        // Trộn ngẫu nhiên danh sách câu hỏi
+        this.questions = this.questions.sort(() => Math.random() - 0.5);
 
-    // Gán sự kiện click cho 4 nút
-    this.optionButtons.forEach((btn, index) => {
-      btn.addEventListener('click', () => {
-        // Chỉ xử lý click nếu Scene Quiz đang hiển thị
-        if (this.el.getAttribute('visible') === true) {
-          this.checkAnswer(index);
+        // Lấy các thực thể từ HTML
+        this.questionDisplay = document.querySelector("#question-board");
+
+        // Quan trọng: Chọn tất cả các nút có class .quiz-option
+        this.optionButtons = document.querySelectorAll(".quiz-option");
+
+        // Gán sự kiện click cho 4 nút
+        this.optionButtons.forEach((btn, index) => {
+          btn.addEventListener('click', () => {
+            // Chỉ xử lý click nếu Scene Quiz đang hiển thị
+            if (this.el.getAttribute('visible') === true) {
+              this.checkAnswer(index);
+            }
+          });
+        });
+
+        this.loadQuestion();
+      },
+
+      loadQuestion: function () {
+        // Kiểm tra nếu chưa hết số lượng câu hỏi mục tiêu
+        if (this.currentQuestionIndex < this.totalQuestions) {
+          const currentQ = this.questions[this.currentQuestionIndex];
+
+          // Đổi ảnh câu hỏi trên tấm Plane
+          if (this.questionDisplay) {
+            this.questionDisplay.setAttribute('src', currentQ.qImage);
+          }
+        } else {
+          // HOÀN THÀNH: Chuyển sang Scene Assembly
+          this.el.setAttribute('visible', false);
+          const assemblyScene = document.querySelector("#assembly");
+          if (assemblyScene) {
+            assemblyScene.setAttribute('visible', true);
+          }
         }
-      });
+      },
+
+      checkAnswer: function (selectedIndex) {
+        const currentQ = this.questions[this.currentQuestionIndex];
+
+        if (selectedIndex === currentQ.correct) {
+          console.log("Chính xác!");
+          this.currentQuestionIndex++;
+          this.loadQuestion();
+        } else {
+          console.log("Sai rồi! Hãy chọn lại.");
+          // Hiệu ứng rung nhẹ khi chọn sai (tùy chọn)
+          this.el.setAttribute('animation', "property: position; from: 0 0 0.01; to: 0 0 0; dur: 50; iterations: 4");
+        }
+      }
     });
-
-    this.loadQuestion();
-  },
-
-  loadQuestion: function () {
-    // Kiểm tra nếu chưa hết số lượng câu hỏi mục tiêu
-    if (this.currentQuestionIndex < this.totalQuestions) {
-      const currentQ = this.questions[this.currentQuestionIndex];
-
-      // Đổi ảnh câu hỏi trên tấm Plane
-      if (this.questionDisplay) {
-        this.questionDisplay.setAttribute('src', currentQ.qImage);
-      }
-    } else {
-      // HOÀN THÀNH: Chuyển sang Scene Assembly
-      this.el.setAttribute('visible', false);
-      const assemblyScene = document.querySelector("#assembly");
-      if (assemblyScene) {
-        assemblyScene.setAttribute('visible', true);
-      }
-    }
-  },
-
-  checkAnswer: function (selectedIndex) {
-    const currentQ = this.questions[this.currentQuestionIndex];
-    
-    if (selectedIndex === currentQ.correct) {
-      console.log("Chính xác!");
-      this.currentQuestionIndex++;
-      this.loadQuestion();
-    } else {
-      console.log("Sai rồi! Hãy chọn lại.");
-      // Hiệu ứng rung nhẹ khi chọn sai (tùy chọn)
-      this.el.setAttribute('animation', "property: position; from: 0 0 0.01; to: 0 0 0; dur: 50; iterations: 4");
-    }
-  }
-});
   </script>
   <title>AR Quiz 5 Scenes</title>
 </head>
@@ -106,6 +106,11 @@
       <a-asset-item id="logo" src="asset/logo.glb"></a-asset-item>
       <a-asset-item id="node" src="asset/nut.glb"></a-asset-item>
       <a-asset-item id="ans" src="asset/cautraloi.glb"></a-asset-item>
+      <img id="c1" src="asset/ans/c1.png">
+      <img id="c2" src="asset/ans/c2.png">
+      <img id="c3" src="asset/ans/c3.png">
+      <img id="c4" src="asset/ans/c4.png">
+      <img id="c5" src="asset/ans/c5.png">
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
