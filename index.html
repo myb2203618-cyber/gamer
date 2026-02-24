@@ -1,68 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-     <script>
-         // Click: Ẩn scene hiện tại → hiện scene tiếp theo
-    AFRAME.registerComponent('scene-switch', {
-      schema: {
-        target: { type: 'selector' }
-      },
-      init: function () {
-        this.el.addEventListener('click', () => {
-          this.el.parentElement.setAttribute('visible', false);
-          this.data.target.setAttribute('visible', true);
+    <script>
+        AFRAME.registerComponent('scene-switch', {
+            schema: {
+                target: { type: 'selector' }
+            },
+            init: function () {
+                this.el.addEventListener('click', () => {
+                    // Ẩn scene hiện tại (là cha của nút bấm)
+                    this.el.closest('a-entity[id]').setAttribute('visible', false);
+                    // Hiện scene mục tiêu
+                    this.data.target.setAttribute('visible', true);
+                });
+            }
         });
-      }
-    });
     </script>
-    <title>Document</title>
+    <title>AR Quiz</title>
 </head>
 <body>
-    <a-scene
-	mindar-image="imageTargetSrc: targets.mind"
-  mindar-image-target
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false">
+    <a-scene 
+        mindar-image="imageTargetSrc: targets.mind" 
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights: true"
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
 
-  <a-assets>
-    <a-asset-item id="logo" src="asset/logo.glb"></a-asset-item>
-    <a-asset-item id="node" src="asset/nut.glb"></a-asset-item>
-    <a-asset-item id="ans" src="asset/cautraloi.glb"></a-asset-item>
-  </a-assets>
+        <a-assets>
+            <a-asset-item id="logo" src="asset/logo.glb"></a-asset-item>
+            <a-asset-item id="node" src="asset/nut.glb"></a-asset-item>
+            <a-asset-item id="ans" src="asset/cautraloi.glb"></a-asset-item>
+        </a-assets>
 
- <a-camera
-  look-controls="enabled: false">
+        <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="objects: .clickable"></a-camera>
 
-  <a-cursor
-    rayOrigin="entity"
-    fuse="false"
-    raycaster="objects: .clickable">
-  </a-cursor>
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-entity id="welcome" visible="true">
+                <a-gltf-model src="#logo" position="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+                <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#node" position="0.5 0.6 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+                <a-gltf-model src="#node" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+                <a-gltf-model src="#node" position="0.5 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+            </a-entity>
 
-</a-camera>
-
-  <a-entity mindar-image-target="targetIndex: 0">
-    <a-entity id="welcome" visible="true">
-         <a-gltf-model src="#logo" position="0 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#node" position="0.5 0.6 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-         <a-gltf-model src="#node" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-         <a-gltf-model src="#node" position="0.5 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-    </a-entity>
-    <a-entity id="quiz" visible="false">
-        <a-gltf-model src="#ans" position="0 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model> 
-        <a-gltf-model src="#node" position="-0.5 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model src="#node" position="0 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model src="#node" position="0.5 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-      </a-entity>
-  </a-entity>
-
-</a-scene>
-
-
-
+            <a-entity id="quiz" visible="false">
+                <a-gltf-model src="#ans" position="0 0.3 0" scale="0.1 0.1 0.1"></a-gltf-model> 
+                <a-gltf-model class="clickable" src="#node" position="-0.5 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+                <a-gltf-model class="clickable" src="#node" position="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+                <a-gltf-model class="clickable" src="#node" position="0.5 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+            </a-entity>
+        </a-entity>
+    </a-scene>
 </body>
 </html>
