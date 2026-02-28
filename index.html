@@ -122,14 +122,14 @@
     <a-entity mindar-image-target="targetIndex: 0">
 
       <a-entity id="welcome" visible="true">
-        <a-gltf-model src="#logo" position="0 0 0" scale="0.1 0.1 0.1"
+        <a-gltf-model src="#logo" position="0 0 0" scale="1 1 1"
           animation-mixer="loop: once; clampWhenFinished: true">
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.5 0.6 0"
-          scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
-        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+          scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
         <a-gltf-model scene-switch="target: #leaderboard" src="#list" position="0.5 0 0" scale="0.1 0.1 0.1"
-          rotation="0 90 0"></a-gltf-model>
+          rotation="0 0 0"></a-gltf-model>
 
       </a-entity>
 
@@ -145,10 +145,10 @@
           material="transparent: true; shader: flat">
         </a-plane>
 
-        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.45 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.15 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="0.15 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="0.45 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.45 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.15 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#node" position="0.15 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#node" position="0.45 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
 
       </a-entity>
 
