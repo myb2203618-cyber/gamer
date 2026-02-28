@@ -45,7 +45,7 @@
         this.questionDisplay = document.querySelector("#question-board");
 
         // Quan trọng: Chọn tất cả các nút có class .quiz-option
-        this.optionButtons = document.querySelectorAll(".quiz-option");
+        this.optionButtons = this.el.querySelectorAll(".quiz-option");
 
         // Gán sự kiện click cho 4 nút
         this.optionButtons.forEach((btn, index) => {
@@ -104,6 +104,9 @@
 
     <a-assets>
       <a-asset-item id="logo" src="asset/logo.glb"></a-asset-item>
+      <a-asset-item id="start" src="asset/start.glb"></a-asset-item>
+      <a-asset-item id="link" src="asset/link.glb"></a-asset-item>
+      <a-asset-item id="list" src="asset/list.glb"></a-asset-item>
       <a-asset-item id="node" src="asset/nut.glb"></a-asset-item>
       <a-asset-item id="ans" src="asset/cautraloi.glb"></a-asset-item>
       <img id="c1" src="asset/ans/c1.png">
@@ -119,11 +122,13 @@
     <a-entity mindar-image-target="targetIndex: 0">
 
       <a-entity id="welcome" visible="true">
-        <a-gltf-model src="#logo" position="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
-        <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#node" position="0.5 0.6 0"
+        <a-gltf-model src="#logo" position="0 0 0" scale="0.1 0.1 0.1"
+          animation-mixer="loop: once; clampWhenFinished: true">
+        </a-gltf-model>
+        <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.5 0.6 0"
           scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
-        <a-gltf-model src="#node" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
-        <a-gltf-model scene-switch="target: #leaderboard" src="#node" position="0.5 0 0" scale="0.1 0.1 0.1"
+        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+        <a-gltf-model scene-switch="target: #leaderboard" src="#list" position="0.5 0 0" scale="0.1 0.1 0.1"
           rotation="0 90 0"></a-gltf-model>
 
       </a-entity>
@@ -140,10 +145,10 @@
           material="transparent: true; shader: flat">
         </a-plane>
 
-        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.75 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.25 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="0.25 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="0.75 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.45 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.15 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#node" position="0.15 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#node" position="0.45 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
 
       </a-entity>
 
