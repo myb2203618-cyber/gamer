@@ -31,7 +31,7 @@
           { qImage: "#c1", correct: 3 }, // Nút thứ 4 đúng
           { qImage: "#c2", correct: 1 }, // Nút thứ 2 đúng
           { qImage: "#c3", correct: 2 }, // Nút thứ 3 đúng
-          { qImage: "#c4", correct: 2 }, // Nút thứ 1 đúng
+          { qImage: "#c4", correct: 2 }, // Nút thứ 3 đúng
           { qImage: "#c5", correct: 0 }  // Nút thứ 3 đúng
         ];
 
@@ -93,6 +93,34 @@
         }
       }
     });
+    ////random-qua///////////////////////////////////////
+    AFRAME.registerComponent('gift', {
+      init: function () {
+        // 1. Dữ liệu câu hỏi: 'correct' từ 0 đến 3 (tương ứng 4 nút bấm)
+        this.gifts = [
+          { gift: "#q1" }, // Nút thứ 4 đúng
+          { gift: "#q2" }, // Nút thứ 2 đúng
+          { gift: "#q3" }, // Nút thứ 3 đúng
+          { gift: "#q4" }, // Nút thứ 3 đúng
+
+        ];
+        // Trộn ngẫu nhiên danh sách câu hỏi
+        this.gifts = this.gifts.sort(() => Math.random() - 0.5);
+
+        // Lấy các thực thể từ HTML
+        this.giftDisplay = document.querySelector("#gift-harec");
+
+        this.showGift();
+      },
+      showGift: function() {
+        const rdGift = this.gifts[0];
+
+      if (this.giftDisplay) {
+      this.giftDisplay.setAttribute('src', rdGift.gift);
+      this.giftDisplay.setAttribute('visible', true);
+    }
+      }
+    });
   </script>
   <title>AR Quiz 5 Scenes</title>
 </head>
@@ -104,11 +132,20 @@
 
     <a-assets>
       <a-asset-item id="logo" src="asset/logo.glb"></a-asset-item>
+      <a-asset-item id="logo2" src="asset/logonoa.glb"></a-asset-item>
       <a-asset-item id="start" src="asset/start.glb"></a-asset-item>
       <a-asset-item id="link" src="asset/link.glb"></a-asset-item>
       <a-asset-item id="list" src="asset/list.glb"></a-asset-item>
       <a-asset-item id="node" src="asset/nut.glb"></a-asset-item>
-      <a-asset-item id="ans" src="asset/cautraloi.glb"></a-asset-item>
+      <a-asset-item id="ans1" src="asset/a.glb"></a-asset-item>
+      <a-asset-item id="ans2" src="asset/b.glb"></a-asset-item>
+      <a-asset-item id="ans3" src="asset/c.glb"></a-asset-item>
+      <a-asset-item id="ans4" src="asset/d.glb"></a-asset-item>
+      <a-asset-item id="q1" src="asset/gift/g10.glb"></a-asset-item>
+      <a-asset-item id="q2" src="asset/gift/g20.glb"></a-asset-item>
+      <a-asset-item id="q3" src="asset/gift/g40.glb"></a-asset-item>
+      <a-asset-item id="q4" src="asset/gift/gs.glb"></a-asset-item>
+      <audio id="welsound" src="asset/audio/chaomung.mp3"></audio>
       <img id="c1" src="asset/ans/c1.png">
       <img id="c2" src="asset/ans/c2.png">
       <img id="c3" src="asset/ans/c3.png">
@@ -121,8 +158,8 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <a-entity id="welcome" visible="true">
-        <a-gltf-model src="#logo" position="0 0 0" scale="1 1 1"
+      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay:true; loop: false; volumn: 1">
+        <a-gltf-model src="#logo" position="0 0.3 0" scale="3 3 3"
           animation-mixer="loop: once; clampWhenFinished: true">
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.5 0.6 0"
@@ -145,23 +182,26 @@
           material="transparent: true; shader: flat">
         </a-plane>
 
-        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.45 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="-0.15 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="0.15 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#node" position="0.45 0 0" scale="0.1 0.1 0.1" rotation="0 90 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.3 0 0" scale="0.1 0.1 0.1"
+          rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#ans2" position="-0.1 0 0" scale="0.1 0.1 0.1"
+          rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#ans3" position="0.1 0 0" scale="0.1 0.1 0.1"
+          rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.3 0 0" scale="0.1 0.1 0.1"
+          rotation="0 0 0"></a-gltf-model>
 
       </a-entity>
 
       <a-entity id="assembly" visible="false">
-        <a-gltf-model src="#logo" position="0 0 0" scale="0.15 0.15 0.15"
-          animation="property: rotation; to: 0 360 0; loop: true; dur: 5000"></a-gltf-model>
-        <a-gltf-model class="clickable" scene-switch="target: #reward" src="#node" position="0 -0.5 0"
+        <a-gltf-model src="#logo2" position="0 0.6 0" scale="3 3 3"></a-gltf-model>
+        <a-gltf-model class="clickable" scene-switch="target: #reward" src="#node" position="0 0 0"
           scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
 
-      <a-entity id="reward" visible="false">
-        <a-text value="CHUC MUNG! BAN NHAN DUOC VOUCHER 50%" align="center" position="0 0.3 0"
-          scale="0.4 0.4 0.4"></a-text>
+      <a-entity id="reward" visible="false" gift >
+        <a-gltf-model id="gift-harec" src="#node" position="0.3 0 0" scale="0.1 0.1 0.1"
+          rotation="0 0 0"></a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#node" position="0 -0.3 0"
           scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
