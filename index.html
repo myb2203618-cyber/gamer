@@ -7,7 +7,7 @@
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <!-- animation-mixer  -->
-   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   <script>
     AFRAME.registerComponent('scene-switch', {
       schema: {
@@ -24,6 +24,14 @@
         });
       }
     });
+    AFRAME.registerComponent('link-handler', {
+      schema: {url: { type: "string" } },
+      init: function () {
+        this.el.addEventListener('click', ()=>{
+          window.open(this.data.url, '-blank');
+        });
+      }
+    });
     ////////////////////////////////////////////////////////////////
     //////QUIZ - phancauhoi
     AFRAME.registerComponent('quiz-logic', {
@@ -34,11 +42,10 @@
           { qImage: "#c2", correct: 1 }, // Nút thứ 2 đúng
           { qImage: "#c3", correct: 2 }, // Nút thứ 3 đúng
           { qImage: "#c4", correct: 2 }, // Nút thứ 3 đúng
-          { qImage: "#c5", correct: 0 }  // Nút thứ 3 đúng
-        ];
+        ]
 
         this.currentQuestionIndex = 0;
-        this.totalQuestions = 4; // Số câu hỏi cần trả lời để qua màn
+        this.totalQuestions = 3; // Số câu hỏi cần trả lời để qua màn
 
         // Trộn ngẫu nhiên danh sách câu hỏi
         this.questions = this.questions.sort(() => Math.random() - 0.5);
@@ -83,14 +90,25 @@
 
       checkAnswer: function (selectedIndex) {
         const currentQ = this.questions[this.currentQuestionIndex];
-
+        // Lấy audio trực tiếp từ DOM
+        const correctSound = document.querySelector("#correct");
+        const wrongSound = document.querySelector("#wrong");
         if (selectedIndex === currentQ.correct) {
           console.log("Chính xác!");
-          this.currentQuestionIndex++;
-          this.loadQuestion();
+          // reset về đầu nếu đã phát trước đó
+          correctSound.currentTime = 0;
+          correctSound.play();
+
+          setTimeout(() => {
+            this.currentQuestionIndex++;
+            this.loadQuestion();
+          }, 800);
         } else {
           console.log("Sai rồi! Hãy chọn lại.");
           // Hiệu ứng rung nhẹ khi chọn sai (tùy chọn)
+          wrongSound.currentTime = 0;
+          wrongSound.play();
+
           this.el.setAttribute('animation', "property: position; from: 0 0 0.01; to: 0 0 0; dur: 50; iterations: 4");
         }
       }
@@ -114,13 +132,13 @@
 
         this.showGift();
       },
-      showGift: function() {
+      showGift: function () {
         const rdGift = this.gifts[0];
 
-      if (this.giftDisplay) {
-      this.giftDisplay.setAttribute('src', rdGift.gift);
-      this.giftDisplay.setAttribute('visible', true);
-    }
+        if (this.giftDisplay) {
+          this.giftDisplay.setAttribute('src', rdGift.gift);
+          this.giftDisplay.setAttribute('visible', true);
+        }
       }
     });
   </script>
@@ -135,24 +153,33 @@
     <a-assets>
       <a-asset-item id="logo" src="asset/logo.glb"></a-asset-item>
       <a-asset-item id="logo2" src="asset/logonoa.glb"></a-asset-item>
+
       <a-asset-item id="start" src="asset/start.glb"></a-asset-item>
       <a-asset-item id="link" src="asset/link.glb"></a-asset-item>
       <a-asset-item id="list" src="asset/list.glb"></a-asset-item>
+
       <a-asset-item id="node" src="asset/nut.glb"></a-asset-item>
+
       <a-asset-item id="ans1" src="asset/a.glb"></a-asset-item>
       <a-asset-item id="ans2" src="asset/b.glb"></a-asset-item>
       <a-asset-item id="ans3" src="asset/c.glb"></a-asset-item>
       <a-asset-item id="ans4" src="asset/d.glb"></a-asset-item>
+
       <a-asset-item id="q1" src="asset/gift/g10.glb"></a-asset-item>
       <a-asset-item id="q2" src="asset/gift/g20.glb"></a-asset-item>
       <a-asset-item id="q3" src="asset/gift/g40.glb"></a-asset-item>
       <a-asset-item id="q4" src="asset/gift/gs.glb"></a-asset-item>
+
       <audio id="welsound" src="asset/audio/chaomung.mp3"></audio>
+      <audio id="wrong" src="asset/audio/wrong.mp3"></audio>
+      <audio id="correct" src="asset/audio/correct.mp3"></audio>
+      <audio id="reward" src="asset/audio/reward-end.mp3"></audio>
+
       <img id="c1" src="asset/ans/c1.png">
       <img id="c2" src="asset/ans/c2.png">
       <img id="c3" src="asset/ans/c3.png">
       <img id="c4" src="asset/ans/c4.png">
-      <img id="c5" src="asset/ans/c5.png">
+
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
@@ -160,13 +187,13 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay:true; loop: false; volumn: 1">
+      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: true; loop: false; volume: 1">
         <a-gltf-model src="#logo" position="0 0.3 0" scale="1 1 1"
           animation-mixer="loop: once; clampWhenFinished: true">
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.5 0.6 0"
           scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0" class="clickable" link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
         <a-gltf-model scene-switch="target: #leaderboard" src="#list" position="0.5 0 0" scale="0.1 0.1 0.1"
           rotation="0 0 0"></a-gltf-model>
 
@@ -201,9 +228,9 @@
           scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
 
-      <a-entity id="reward" visible="false" gift >
-        <a-gltf-model id="gift-harec" src="#node" position="0.3 0 0" scale="0.1 0.1 0.1"
-          rotation="0 0 0"></a-gltf-model>
+      <a-entity id="reward" visible="false" gift sound="src: #reward; autoplay:true; loop: false; volumn: 1"> 
+        <a-gltf-model id="gift-harec" animation-mixer="clip: Animation 2; loop: once; clampWhenFinished: true"
+          position="0.3 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#node" position="0 -0.3 0"
           scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
