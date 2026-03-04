@@ -173,7 +173,7 @@
       <audio id="welsound" src="asset/audio/chaomung.mp3"></audio>
       <audio id="wrong" src="asset/audio/wrong.mp3"></audio>
       <audio id="correct" src="asset/audio/correct.mp3"></audio>
-      <audio id="reward" src="asset/audio/reward-end.mp3"></audio>
+      <audio id="send" src="asset/audio/reward-end.mp3"></audio>
 
       <img id="c1" src="asset/ans/c1.png">
       <img id="c2" src="asset/ans/c2.png">
@@ -188,7 +188,7 @@
     <a-entity mindar-image-target="targetIndex: 0">
 
       <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: true; loop: false; volume: 1">
-        <a-gltf-model src="#logo" position="0 0.3 0" scale="1 1 1"
+        <a-gltf-model src="#logo" position="0 0.3 0" scale="0.1 0.1 0.1"
           animation-mixer="loop: once; clampWhenFinished: true">
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.5 0.6 0"
@@ -228,7 +228,7 @@
           scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
 
-      <a-entity id="reward" visible="false" gift sound="src: #reward; autoplay:true; loop: false; volume: 1"> 
+      <a-entity id="reward" visible="false" gift sound="src: #send; autoplay:true; loop: false; volume: 1"> 
         <a-gltf-model id="gift-harec" animation-mixer="clip: Animation 2; loop: once; clampWhenFinished: true"
           position="0.3 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#node" position="0 -0.3 0"
