@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <!-- animation-mixer  -->
+   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   <script>
     AFRAME.registerComponent('scene-switch', {
       schema: {
@@ -159,8 +161,8 @@
     <a-entity mindar-image-target="targetIndex: 0">
 
       <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay:true; loop: false; volumn: 1">
-        <a-gltf-model src="#logonoa" position="0 0.3 0" scale="0.1 0.1 0.1"
-          >
+        <a-gltf-model src="#logo" position="0 0.3 0" scale="1 1 1"
+          animation-mixer="loop: once; clampWhenFinished: true">
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.5 0.6 0"
           scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
@@ -194,7 +196,7 @@
       </a-entity>
 
       <a-entity id="assembly" visible="false">
-        <a-gltf-model src="#logo2" position="0 0.6 0" scale="3 3 3"></a-gltf-model>
+        <a-gltf-model src="#logo2" position="0 0.6 0" scale="1 1 1"></a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #reward" src="#node" position="0 0 0"
           scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
