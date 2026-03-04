@@ -9,6 +9,26 @@
   <!-- animation-mixer  -->
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   <script>
+    ///////////////audio
+    window.addEventListener("load", function () {
+
+      const marker = document.querySelector('[mindar-image-target]');
+      const welSound = document.querySelector('#welcome');
+
+      if (marker && welSound) {
+
+        marker.addEventListener("targetFound", function () {
+
+          if (welSound.components.sound) {
+            welSound.components.sound.playSound();
+          }
+
+        });
+
+      }
+
+    });
+    ///////////////effects
     AFRAME.registerComponent('scene-switch', {
       schema: {
         target: { type: 'selector' }
@@ -25,9 +45,9 @@
       }
     });
     AFRAME.registerComponent('link-handler', {
-      schema: {url: { type: "string" } },
+      schema: { url: { type: "string" } },
       init: function () {
-        this.el.addEventListener('click', ()=>{
+        this.el.addEventListener('click', () => {
           window.open(this.data.url, '-blank');
         });
       }
@@ -187,13 +207,14 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: true; loop: false; volume: 1">
+      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
         <a-gltf-model src="#logo" position="0 0.3 0" scale="0.1 0.1 0.1"
-          animation-mixer="loop: once; clampWhenFinished: true">
+          animation-mixer="clip: *;loop: once; clampWhenFinished: true">
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.5 0.6 0"
           scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0" class="clickable" link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
+        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0" class="clickable"
+          link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
         <a-gltf-model scene-switch="target: #leaderboard" src="#list" position="0.5 0 0" scale="0.1 0.1 0.1"
           rotation="0 0 0"></a-gltf-model>
 
@@ -228,7 +249,7 @@
           scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
 
-      <a-entity id="reward" visible="false" gift sound="src: #send; autoplay:true; loop: false; volume: 1"> 
+      <a-entity id="reward" visible="false" gift>
         <a-gltf-model id="gift-harec" animation-mixer="clip: Animation 2; loop: once; clampWhenFinished: true"
           position="0.3 0 0" scale="0.1 0.1 0.1" rotation="0 0 0"></a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#node" position="0 -0.3 0"
