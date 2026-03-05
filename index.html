@@ -4,226 +4,237 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <head>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  
+
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-  
-  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@master/dist/aframe-particle-system-component.min.js"></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@master/dist/aframe-particle-system-component.min.js"></script>
 </head>
-  <script>
-    ///////////////audio
-    AFRAME.registerComponent('audio-handler', {
-      init: function () {
-        this.el.addEventListener("targetFound", () => {
-          const welSound = document.querySelector('#welcome');
-          if (welSound && welSound.components.sound) {
-            welSound.components.sound.playSound();
-          }
-        });
-      }
-    });
-    ///////////////effects
-    AFRAME.registerComponent('scene-switch', {
-      schema: {
-        target: { type: 'selector' }
-      },
-      init: function () {
-        this.el.addEventListener('click', () => {
-          // Tìm scene cha hiện tại đang chứa nút được bấm
-          const currentScene = this.el.closest('a-entity[id]');
-          if (currentScene) currentScene.setAttribute('visible', false);
-
-          // Hiện scene mục tiêu
-          if (this.data.target) this.data.target.setAttribute('visible', true);
-        });
-      }
-    });
-    AFRAME.registerComponent('link-handler', {
-      schema: { url: { type: "string" } },
-      init: function () {
-        this.el.addEventListener('click', () => {
-          window.open(this.data.url, '_blank');
-        });
-      }
-    });
-    ////////////////////////////////////////////////////////////////
-    //////QUIZ - phancauhoi
-    AFRAME.registerComponent('quiz-logic', {
-      init: function () {
-        // 1. Dữ liệu câu hỏi: 'correct' từ 0 đến 3 (tương ứng 4 nút bấm)
-        this.questions = [
-          { qImage: "#c1", correct: 3 }, // Nút thứ 4 đúng
-          { qImage: "#c2", correct: 1 }, // Nút thứ 2 đúng
-          { qImage: "#c3", correct: 2 }, // Nút thứ 3 đúng
-          { qImage: "#c4", correct: 2 }, // Nút thứ 3 đúng
-        ]
-
-        this.currentQuestionIndex = 0;
-        this.totalQuestions = 3; // Số câu hỏi cần trả lời để qua màn
-
-        // Trộn ngẫu nhiên danh sách câu hỏi
-        this.questions = this.questions.sort(() => Math.random() - 0.5);
-
-        // Lấy các thực thể từ HTML
-        this.questionDisplay = document.querySelector("#question-board");
-
-        // Quan trọng: Chọn tất cả các nút có class .quiz-option
-        this.optionButtons = this.el.querySelectorAll(".quiz-option");
-
-        // Gán sự kiện click cho 4 nút
-        this.optionButtons.forEach((btn, index) => {
-          btn.addEventListener('click', () => {
-            // Chỉ xử lý click nếu Scene Quiz đang hiển thị
-            if (this.el.getAttribute('visible') === true) {
-              this.checkAnswer(index);
-            }
-          });
-        });
-
-        this.loadQuestion();
-      },
-
-      loadQuestion: function () {
-        // Kiểm tra nếu chưa hết số lượng câu hỏi mục tiêu
-        if (this.currentQuestionIndex < this.totalQuestions) {
-          const currentQ = this.questions[this.currentQuestionIndex];
-
-          // Đổi ảnh câu hỏi trên tấm Plane
-          if (this.questionDisplay) {
-            this.questionDisplay.setAttribute('src', currentQ.qImage);
-          }
-        } else {
-          // HOÀN THÀNH: Chuyển sang Scene Assembly
-          this.el.setAttribute('visible', false);
-          const assemblyScene = document.querySelector("#assembly");
-          if (assemblyScene) {
-            assemblyScene.setAttribute('visible', true);
-          }
+<script>
+  ///////////////audio
+  AFRAME.registerComponent('audio-handler', {
+    init: function () {
+      this.el.addEventListener("targetFound", () => {
+        const welSound = document.querySelector('#welcome');
+        if (welSound && welSound.components.sound) {
+          welSound.components.sound.playSound();
         }
-      },
+      });
+    }
+  });
+  ///////////////effects
+  AFRAME.registerComponent('scene-switch', {
+    schema: {
+      target: { type: 'selector' }
+    },
+    init: function () {
+      this.el.addEventListener('click', () => {
+        // Tìm scene cha hiện tại đang chứa nút được bấm
+        const currentScene = this.el.closest('a-entity[id]');
+        if (currentScene) currentScene.setAttribute('visible', false);
 
-      checkAnswer: function (selectedIndex) {
-        const currentQ = this.questions[this.currentQuestionIndex];
-        // Lấy audio trực tiếp từ DOM
-        const correctSound = document.querySelector("#correct");
-        const wrongSound = document.querySelector("#wrong");
-        if (selectedIndex === currentQ.correct) {
-          console.log("Chính xác!");
-          // reset về đầu nếu đã phát trước đó
-          correctSound.currentTime = 0;
-          correctSound.play();
+        // Hiện scene mục tiêu
+        if (this.data.target) this.data.target.setAttribute('visible', true);
+      });
+    }
+  });
 
-          setTimeout(() => {
-            this.currentQuestionIndex++;
-            this.loadQuestion();
-          }, 800);
-        } else {
-          console.log("Sai rồi! Hãy chọn lại.");
-          // Hiệu ứng rung nhẹ khi chọn sai (tùy chọn)
-          wrongSound.currentTime = 0;
-          wrongSound.play();
+  AFRAME.registerComponent('link-handler', {
+    schema: { url: { type: "string" } },
+    init: function () {
+      this.el.addEventListener('click', () => {
+        window.open(this.data.url, '_blank');
+      });
+    }
+  });
+  ////////////////////////////////////////////////////////////////
+  //////QUIZ - phancauhoi
+  AFRAME.registerComponent('quiz-logic', {
+    init: function () {
+      // 1. Dữ liệu câu hỏi: 'correct' từ 0 đến 3 (tương ứng 4 nút bấm)
+      this.questions = [
+        { qImage: "#c1", correct: 3 }, // Nút thứ 4 đúng
+        { qImage: "#c2", correct: 1 }, // Nút thứ 2 đúng
+        { qImage: "#c3", correct: 2 }, // Nút thứ 3 đúng
+        { qImage: "#c4", correct: 2 }, // Nút thứ 3 đúng
+      ]
 
-          this.el.setAttribute('animation', "property: position; from: 0 0 0.01; to: 0 0 0; dur: 50; iterations: 4");
-        }
-      }
-    });
-    /////assembly
-    // Hàm startDivingEffect cần được đặt ngoài hoặc trong một nơi mà HTML gọi được
-    window.startDivingEffect = function () {
-      const product = document.querySelector('#main-product');
-      const bubbles = document.querySelector('#bubbles');
-      const seaLife = document.querySelector('#sea-life');
-      const light = document.querySelector('#underwater-light');
+      this.currentQuestionIndex = 0;
+      this.totalQuestions = 3; // Số câu hỏi cần trả lời để qua màn
 
-      product.setAttribute('animation', {
-        property: 'position',
-        to: '0 -2 0',
-        dur: 3000,
-        easing: 'easeInQuad'
+      // Trộn ngẫu nhiên danh sách câu hỏi
+      this.questions = this.questions.sort(() => Math.random() - 0.5);
+
+      // Lấy các thực thể từ HTML
+      this.questionDisplay = document.querySelector("#question-board");
+
+      // Quan trọng: Chọn tất cả các nút có class .quiz-option
+      this.optionButtons = this.el.querySelectorAll(".quiz-option");
+
+      // Gán sự kiện click cho 4 nút
+      this.optionButtons.forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+          // Chỉ xử lý click nếu Scene Quiz đang hiển thị
+          if (this.el.getAttribute('visible') === true) {
+            this.checkAnswer(index);
+          }
+        });
       });
 
-      bubbles.setAttribute('visible', 'true');
+      this.loadQuestion();
+    },
 
-      setTimeout(() => {
-        seaLife.setAttribute('visible', 'true');
-        light.setAttribute('animation', {
-          property: 'light.intensity',
-          to: 1.5,
-          dur: 2000
-        });
-      }, 1500);
-    };
-    //////////////ray
-    AFRAME.registerComponent('swim-around', {
-      schema: {
-        target: { type: 'selector' }, // Tâm là sản phẩm
-        radius: { default: 3 },      // Khoảng cách bơi
-        speed: { default: 1 }        // Tốc độ bơi
-      },
-      tick: function (time, deltaTime) {
-        // Tính toán vị trí theo hình tròn dựa trên thời gian
-        const angle = time / 1000 * this.data.speed;
-        const x = Math.cos(angle) * this.data.radius;
-        const z = Math.sin(angle) * this.data.radius;
-        const y = Math.sin(angle * 0.5) * 0.5; // Nhấp nhô lên xuống nhẹ
+    loadQuestion: function () {
+      // Kiểm tra nếu chưa hết số lượng câu hỏi mục tiêu
+      if (this.currentQuestionIndex < this.totalQuestions) {
+        const currentQ = this.questions[this.currentQuestionIndex];
 
-        // Cập nhật vị trí cho cá
-        this.el.setAttribute('position', { x: x, y: y - 2, z: z });
-
-        // Xoay đầu cá hướng theo hướng bơi
-        this.el.setAttribute('rotation', { x: 0, y: -(angle * 180 / Math.PI) + 180, z: 0 });
+        // Đổi ảnh câu hỏi trên tấm Plane
+        if (this.questionDisplay) {
+          this.questionDisplay.setAttribute('src', currentQ.qImage);
+        }
+      } else {
+        // HOÀN THÀNH: Chuyển sang Scene Assembly
+        this.el.setAttribute('visible', false);
+        const assemblyScene = document.querySelector("#assembly");
+        if (assemblyScene) {
+          assemblyScene.setAttribute('visible', true);
+        }
       }
-    });
-    ////random-qua///////////////////////////////////////
-    AFRAME.registerComponent('gift', {
-      init: function () {
-        // Lắng nghe sự kiện khi entity này được hiển thị (visible chuyển từ false sang true)
-        this.el.addEventListener('componentchanged', (evt) => {
-          if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
-            this.generateReward();
+    },
+
+    checkAnswer: function (selectedIndex) {
+      const currentQ = this.questions[this.currentQuestionIndex];
+      // Lấy audio trực tiếp từ DOM
+      const correctSound = document.querySelector("#correct");
+      const wrongSound = document.querySelector("#wrong");
+      if (selectedIndex === currentQ.correct) {
+        console.log("Chính xác!");
+        // reset về đầu nếu đã phát trước đó
+        correctSound.currentTime = 0;
+        correctSound.play();
+
+        setTimeout(() => {
+          this.currentQuestionIndex++;
+          this.loadQuestion();
+        }, 800);
+      } else {
+        console.log("Sai rồi! Hãy chọn lại.");
+        // Hiệu ứng rung nhẹ khi chọn sai (tùy chọn)
+        wrongSound.currentTime = 0;
+        wrongSound.play();
+
+        this.el.setAttribute('animation', "property: position; from: 0 0 0.01; to: 0 0 0; dur: 50; iterations: 4");
+      }
+    }
+  });
+
+  /////assembly
+  // Hàm startDivingEffect cần được đặt ngoài hoặc trong một nơi mà HTML gọi được
+  AFRAME.registerComponent('diving-effect', {
+    init: function () {
+      this.el.addEventListener('click', () => {
+        const product = this.el; // Chính là #main-product
+        const bubbles = document.querySelector('#bubbles');
+        const seaLife = document.querySelector('#sea-life');
+        const light = document.querySelector('#underwater-light');
+
+        // Chạy animation xuống nước
+        product.setAttribute('animation__dive', {
+          property: 'position',
+          to: '0 -2 0',
+          dur: 3000,
+          easing: 'easeInQuad'
+        });
+
+        // Hiện bong bóng
+        if (bubbles) bubbles.setAttribute('visible', true);
+
+        // Sau 1.5s hiện sinh vật biển và tăng sáng
+        setTimeout(() => {
+          if (seaLife) seaLife.setAttribute('visible', true);
+          if (light) {
+            light.setAttribute('animation__brighten', {
+              property: 'light.intensity',
+              to: 1.5,
+              dur: 2000
+            });
           }
-        });
-      },
+        }, 1500);
+      });
+    }
+  });
+  //////////////ray
+  AFRAME.registerComponent('swim-around', {
+    schema: {
+      target: { type: 'selector' }, // Tâm là sản phẩm
+      radius: { default: 3 },      // Khoảng cách bơi
+      speed: { default: 1 }        // Tốc độ bơi
+    },
+    tick: function (time, deltaTime) {
+      // Tính toán vị trí theo hình tròn dựa trên thời gian
+      const angle = time / 1000 * this.data.speed;
+      const x = Math.cos(angle) * this.data.radius;
+      const z = Math.sin(angle) * this.data.radius;
+      const y = Math.sin(angle * 0.5) * 0.5; // Nhấp nhô lên xuống nhẹ
 
-      generateReward: function () {
-        // 1. Định nghĩa tỉ lệ (Tổng = 100)
-        // q4: 10%, q3: 20%, q2: 30%, q1: 40% (Bạn ghi nhầm hai lần q4 nên mình chỉnh lại q1 là 40%)
-        const randomNum = Math.floor(Math.random() * 100) + 1; // 1 đến 100
-        let selectedGift = "";
+      // Cập nhật vị trí cho cá
+      this.el.setAttribute('position', { x: x, y: y - 2, z: z });
 
-        if (randomNum <= 10) {
-          selectedGift = "#q4"; // 10% (1-10)
-        } else if (randomNum <= 30) {
-          selectedGift = "#q3"; // 20% (11-30)
-        } else if (randomNum <= 60) {
-          selectedGift = "#q2"; // 30% (31-60)
-        } else {
-          selectedGift = "#q1"; // 40% (61-100)
+      // Xoay đầu cá hướng theo hướng bơi
+      this.el.setAttribute('rotation', { x: 0, y: -(angle * 180 / Math.PI) + 180, z: 0 });
+    }
+  });
+  ////random-qua///////////////////////////////////////
+  AFRAME.registerComponent('gift', {
+    init: function () {
+      // Lắng nghe sự kiện khi entity này được hiển thị (visible chuyển từ false sang true)
+      this.el.addEventListener('componentchanged', (evt) => {
+        if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
+          this.generateReward();
         }
+      });
+    },
 
-        // 2. Cập nhật model
-        const giftDisplay = document.querySelector("#gift-harec");
-        if (giftDisplay) {
-          giftDisplay.setAttribute('src', selectedGift);
-          // Reset lại animation để nó chạy lại từ đầu mỗi khi đổi quà
-          giftDisplay.removeAttribute('animation-mixer');
-          giftDisplay.setAttribute('animation-mixer', "clip: Animation 2; loop: once; clampWhenFinished: true");
-        }
+    generateReward: function () {
+      // 1. Định nghĩa tỉ lệ (Tổng = 100)
+      // q4: 10%, q3: 20%, q2: 30%, q1: 40% (Bạn ghi nhầm hai lần q4 nên mình chỉnh lại q1 là 40%)
+      const randomNum = Math.floor(Math.random() * 100) + 1; // 1 đến 100
+      let selectedGift = "";
 
-        // 3. Phát âm thanh "rewards"
-        if (this.el.components.sound) {
-          this.el.components.sound.stopSound();
-          this.el.components.sound.playSound();
-        }
-
-        console.log("Phần quà may mắn nhận được:", selectedGift);
+      if (randomNum <= 10) {
+        selectedGift = "#q4"; // 10% (1-10)
+      } else if (randomNum <= 30) {
+        selectedGift = "#q3"; // 20% (11-30)
+      } else if (randomNum <= 60) {
+        selectedGift = "#q2"; // 30% (31-60)
+      } else {
+        selectedGift = "#q1"; // 40% (61-100)
       }
-    });
-  </script>
-  <title>AR Quiz 5 Scenes</title>
+
+      // 2. Cập nhật model
+      const giftDisplay = document.querySelector("#gift-harec");
+      if (giftDisplay) {
+        giftDisplay.setAttribute('src', selectedGift);
+        // Reset lại animation để nó chạy lại từ đầu mỗi khi đổi quà
+        giftDisplay.removeAttribute('animation-mixer');
+        giftDisplay.setAttribute('animation-mixer', "clip: Animation 2; loop: once; clampWhenFinished: true");
+      }
+
+      // 3. Phát âm thanh "rewards"
+      if (this.el.components.sound) {
+        this.el.components.sound.stopSound();
+        this.el.components.sound.playSound();
+      }
+
+      console.log("Phần quà may mắn nhận được:", selectedGift);
+    }
+  });
+</script>
+<title>AR Quiz 5 Scenes</title>
 </head>
 
 <body>
@@ -286,7 +297,7 @@
 
       <a-entity id="leaderboard" visible="false">
         <a-text value="LEADERBOARD" align="center" position="0 0.5 0" color="yellow"></a-text>
-        <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#link" position="0 -0.5 0"
+        <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#ans1" position="0 -0.5 0"
           scale="0.05 0.05 0.05"></a-gltf-model>
       </a-entity>
 
@@ -314,9 +325,7 @@
       <a-entity id="assembly" visible="false">
         <a-gltf-model src="#logo2" position="0 0.6 0" scale="0.2 0.2 0.2"></a-gltf-model>
 
-        <a-entity id="main-product" gltf-model="#sp" position="0 0 0" scale="0.2 0.2 0.2" class="clickable"
-          onclick="startDivingEffect()">
-
+        <a-entity id="main-product" gltf-model="#sp" class="clickable" diving-effect>
           <a-entity id="bubbles" position="0 0 0" visible="false"
             particle-system="preset: snow; color: #ffffff; size: 0.1; velocityValue: 0 2 0; particleCount: 100">
           </a-entity>
