@@ -4,15 +4,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
-  <!-- animation mixer -->
+  
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-
-  <!-- particle -->
-  <script src="https://unpkg.com/aframe-particle-system-component@1.0.5/dist/aframe-particle-system-component.min.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@master/dist/aframe-particle-system-component.min.js"></script>
+</head>
   <script>
     ///////////////audio
     AFRAME.registerComponent('audio-handler', {
@@ -318,7 +318,7 @@
           onclick="startDivingEffect()">
 
           <a-entity id="bubbles" position="0 0 0" visible="false"
-            particle-system="preset: snow; color: #ffffff; size: 0.1; velocityValue: 0 2 0; particleCount: 100">
+            particle-system="preset: dust; color: #ffffff; size: 0.1; velocityValue: 0 2 0; particleCount: 100">
           </a-entity>
         </a-entity>
 
