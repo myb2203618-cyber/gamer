@@ -328,7 +328,7 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <a-entity id="welcome" visible="false" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
+      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
         <a-gltf-model src="#logo" position="0 0.3 0" scale="0.4 0.4 0.4"
           animation-mixer="clip: *;loop: once; clampWhenFinished: true">
         </a-gltf-model>
@@ -368,7 +368,7 @@
         position="2 5 -2" rotation="-70 0 0">
       </a-entity>
 
-      <a-entity id="assembly" visible="true">
+      <a-entity id="assembly" visible="false">
         <a-entity id="main-product" gltf-model="#sp" class="clickable" diving-effect position="0 0 0"
           scale="0.2 0.2 0.2" animation-mixer="clip: *;loop: once;clampWhenFinished: true" rotation=" 0 180 0">
 
