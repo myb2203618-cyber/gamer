@@ -70,7 +70,7 @@
     if (this.currentQuestionIndex < this.totalQuestions) {
       const currentQ = this.questions[this.currentQuestionIndex];
       if (this.questionDisplay) {
-        this.questionDisplay.setAttribute('material', 'src', currentQ.qImage);
+        this.questionDisplay.setAttribute('src', currentQ.qImage);
       }
     } else {
       this.el.setAttribute('visible', false);
@@ -377,7 +377,7 @@
 
           <a-gltf-model id="btn-get-reward" src="#link" class="clickable" visible="false" position="0 -0.5 0.2"
             scale="0.1 0.1 0.1" scene-switch="target: #reward"
-            animation__fadein="property: scale; to: 0.1 0.1 0.1; dur: 1000; easing: easeOutBack; startEvents: show-button">></a-gltf-model>
+            animation__fadein="property: scale; to: 0.1 0.1 0.1; dur: 1000; easing: easeOutBack; startEvents: show-button"></a-gltf-model>
         </a-entity>
 
 
