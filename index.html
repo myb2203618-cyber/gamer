@@ -11,17 +11,7 @@
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 </head>
 <script>
-  ///////////////audio
-  AFRAME.registerComponent('audio-handler', {
-    init: function () {
-      this.el.addEventListener("targetFound", () => {
-        const welSound = document.querySelector('#welcome');
-        if (welSound && welSound.components.sound) {
-          welSound.components.sound.playSound();
-        }
-      });
-    }
-  });
+  
   ///////////////effects
   AFRAME.registerComponent('scene-switch', {
     schema: {
