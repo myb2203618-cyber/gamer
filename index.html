@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 </head>
 <script>
-  
+
   ///////////////effects
   AFRAME.registerComponent('scene-switch', {
     schema: {
@@ -40,69 +40,74 @@
   ////////////////////////////////////////////////////////////////
   //////QUIZ - phancauhoi
   AFRAME.registerComponent('quiz-logic', {
-  init: function () {
-    this.questions = [
-      { qImage: "#c1", correct: 3 }, 
-      { qImage: "#c2", correct: 1 },
-      { qImage: "#c3", correct: 2 },
-      { qImage: "#c4", correct: 2 },
-    ];
-
-    this.currentQuestionIndex = 0;
-    this.totalQuestions = 3;
-    this.questions = this.questions.sort(() => Math.random() - 0.5);
-
-    this.questionDisplay = document.querySelector("#question-board");
-    this.optionButtons = this.el.querySelectorAll(".quiz-option");
-
-    this.optionButtons.forEach((btn, index) => {
-      btn.addEventListener('click', () => {
-        if (this.el.getAttribute('visible')) {
-          this.checkAnswer(index);
-        }
+    init: function () {
+      // 1. Dữ liệu câu hỏi
+      this.questions = [
+        { qImage: "#c1", correct: 3 },
+        { qImage: "#c2", correct: 1 },
+        { qImage: "#c3", correct: 2 },
+        { qImage: "#c4", correct: 2 },
+      ]
+      this.currentQuestionIndex = 0;
+      this.totalQuestions = 3; // Số câu hỏi cần trả lời để qua màn
+      // Trộn ngẫu nhiên danh sách câu hỏi
+      this.questions = this.questions.sort(() => Math.random() - 0.5);
+      // Lấy các thực thể từ HTML
+      this.questionDisplay = document.querySelector("#question-board");
+      // Quan trọng: Chọn tất cả các nút có class .quiz-option
+      this.optionButtons = this.el.querySelectorAll(".quiz-option");
+      // Gán sự kiện click cho 4 nút
+      this.optionButtons.forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+          // Chỉ xử lý click nếu Scene Quiz đang hiển thị
+          if (this.el.getAttribute('visible') === true) {
+            this.checkAnswer(index);
+          }
+        });
       });
-    });
+      this.loadQuestion();
+    },
 
-    this.loadQuestion();
-  },
-
-  loadQuestion: function () {
-    if (this.currentQuestionIndex < this.totalQuestions) {
-      const currentQ = this.questions[this.currentQuestionIndex];
-      if (this.questionDisplay) {
-        this.questionDisplay.setAttribute('src', currentQ.qImage);
+    loadQuestion: function () {
+      // Kiểm tra nếu chưa hết số lượng câu hỏi mục tiêu
+      if (this.currentQuestionIndex < this.totalQuestions) {
+        const currentQ = this.questions[this.currentQuestionIndex];
+        // Đổi ảnh câu hỏi trên tấm Plane
+        if (this.questionDisplay) {
+          this.questionDisplay.setAttribute('src', currentQ.qImage);
+        }
+      } else {
+        // HOÀN THÀNH: Chuyển sang Scene Assembly
+        this.el.setAttribute('visible', false);
+        const assemblyScene = document.querySelector("#assembly");
+        if (assemblyScene) {
+          assemblyScene.setAttribute('visible', true);
+        }
       }
-    } else {
-      this.el.setAttribute('visible', false);
-      const assemblyScene = document.querySelector("#assembly");
-      if (assemblyScene) assemblyScene.setAttribute('visible', true);
-    }
-  },
-
-  checkAnswer: function (selectedIndex) {
-    const currentQ = this.questions[this.currentQuestionIndex];
-    const correctSound = document.querySelector("#correct");
-    const wrongSound = document.querySelector("#wrong");
-
-    if (selectedIndex === currentQ.correct) {
-      if (correctSound) {
+    },
+    checkAnswer: function (selectedIndex) {
+      const currentQ = this.questions[this.currentQuestionIndex];
+      // Lấy audio trực tiếp từ DOM
+      const correctSound = document.querySelector("#correct");
+      const wrongSound = document.querySelector("#wrong");
+      if (selectedIndex === currentQ.correct) {
+        console.log("Chính xác!");
+        // reset về đầu nếu đã phát trước đó
         correctSound.currentTime = 0;
         correctSound.play();
-      }
-      setTimeout(() => {
-        this.currentQuestionIndex++;
-        this.loadQuestion();
-      }, 800);
-    } else {
-      if (wrongSound) {
+
+        setTimeout(() => {
+          this.currentQuestionIndex++;
+          this.loadQuestion();
+        }, 800);
+      } else {
+        console.log("Sai rồi! Hãy chọn lại.");
+        // Hiệu ứng rung nhẹ khi chọn sai (tùy chọn)
         wrongSound.currentTime = 0;
         wrongSound.play();
       }
-      // Hiệu ứng rung
-      this.el.setAttribute('animation', "property: position; from: 0 0 0.01; to: 0 0 0; dur: 50; iterations: 4");
     }
-  }
-});
+  });
 
   /////assembly
   // Hàm startDivingEffect cần được đặt ngoài hoặc trong một nơi mà HTML gọi được
@@ -300,9 +305,9 @@
     <a-entity light="type: ambient; intensity: 1"></a-entity>
     <a-entity light="type: directional; intensity: 0.8; castShadow: true" position="1 4 3"></a-entity>
     <a-entity light="type: directional; intensity: 0.5" position="-2 1 2"></a-entity>
-    
 
-    <a-entity mindar-image-target="targetIndex: 0" >
+
+    <a-entity mindar-image-target="targetIndex: 0">
 
       <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
         <a-gltf-model src="#logo" position="0 0.3 0" scale="0.4 0.4 0.4"
@@ -340,7 +345,7 @@
 
       </a-entity>
       <!-- light -->
-      <a-entity id="underwater-light" light="type: spot; color: #00e5ff; intensity: 0; penumbra: 0.5; angle: 30"
+      <!-- <a-entity id="underwater-light" light="type: spot; color: #00e5ff; intensity: 0; penumbra: 0.5; angle: 30"
         position="2 5 -2" rotation="-70 0 0">
       </a-entity>
 
@@ -378,19 +383,19 @@
           <a-gltf-model id="btn-get-reward" src="#link" class="clickable" visible="false" position="0 -0.5 0.2"
             scale="0.1 0.1 0.1" scene-switch="target: #reward"
             animation__fadein="property: scale; to: 0.1 0.1 0.1; dur: 1000; easing: easeOutBack; startEvents: show-button"></a-gltf-model>
-        </a-entity>
+        </a-entity> -->
 
 
-        <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false">
+      <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false">
 
-          <a-gltf-model id="gift-harec" position="0.3 0 0" scale="0.1 0.1 0.1" rotation="0 0 0">
-          </a-gltf-model>
+        <a-gltf-model id="gift-harec" position="0.3 0 0" scale="0.1 0.1 0.1" rotation="0 0 0">
+        </a-gltf-model>
 
-          <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0" class="clickable"
-            link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
-        </a-entity>
-
+        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0" class="clickable"
+          link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
       </a-entity>
+
+    </a-entity>
   </a-scene>
 </body>
 
