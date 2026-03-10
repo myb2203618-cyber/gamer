@@ -42,10 +42,10 @@
   AFRAME.registerComponent('quiz-logic', {
   init: function () {
     this.questions = [
-      { qImage: "#c1", correct: 2 }, // Lưu ý: Index mảng bắt đầu từ 0 (A=0, B=1, C=2, D=3)
-      { qImage: "#c2", correct: 0 },
-      { qImage: "#c3", correct: 1 },
-      { qImage: "#c4", correct: 1 },
+      { qImage: "#c1", correct: 3 }, 
+      { qImage: "#c2", correct: 1 },
+      { qImage: "#c3", correct: 2 },
+      { qImage: "#c4", correct: 2 },
     ];
 
     this.currentQuestionIndex = 0;
@@ -57,7 +57,6 @@
 
     this.optionButtons.forEach((btn, index) => {
       btn.addEventListener('click', () => {
-        // Kiểm tra xem scene quiz có đang thực sự hiển thị không
         if (this.el.getAttribute('visible')) {
           this.checkAnswer(index);
         }
@@ -296,13 +295,14 @@
       <img id="c4" src="asset/ans/c4.png">
 
     </a-assets>
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
+      raycaster="objects: .clickable"></a-camera>
     <a-entity light="type: ambient; intensity: 1"></a-entity>
     <a-entity light="type: directional; intensity: 0.8; castShadow: true" position="1 4 3"></a-entity>
     <a-entity light="type: directional; intensity: 0.5" position="-2 1 2"></a-entity>
-    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
-      raycaster="objects: .clickable"></a-camera>
+    
 
-    <a-entity mindar-image-target="targetIndex: 0" audio-handler>
+    <a-entity mindar-image-target="targetIndex: 0" >
 
       <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
         <a-gltf-model src="#logo" position="0 0.3 0" scale="0.4 0.4 0.4"
