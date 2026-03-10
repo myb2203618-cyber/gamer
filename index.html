@@ -9,9 +9,6 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-
-  <script
-    src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@master/dist/aframe-particle-system-component.min.js"></script>
 </head>
 <script>
   ///////////////audio
@@ -54,12 +51,12 @@
   //////QUIZ - phancauhoi
   AFRAME.registerComponent('quiz-logic', {
     init: function () {
-      // 1. Dữ liệu câu hỏi: 'correct' từ 0 đến 3 (tương ứng 4 nút bấm)
+      // 1. Dữ liệu câu hỏi
       this.questions = [
-        { qImage: "#c1", correct: 3 }, // Nút thứ 4 đúng
-        { qImage: "#c2", correct: 1 }, // Nút thứ 2 đúng
-        { qImage: "#c3", correct: 2 }, // Nút thứ 3 đúng
-        { qImage: "#c4", correct: 2 }, // Nút thứ 3 đúng
+        { qImage: "#c1", correct: 3 },
+        { qImage: "#c2", correct: 1 },
+        { qImage: "#c3", correct: 2 },
+        { qImage: "#c4", correct: 2 },
       ]
 
       this.currentQuestionIndex = 0;
@@ -134,28 +131,32 @@
 
   /////assembly
   // Hàm startDivingEffect cần được đặt ngoài hoặc trong một nơi mà HTML gọi được
+
   AFRAME.registerComponent('diving-effect', {
     init: function () {
       this.el.addEventListener('click', () => {
-        const product = this.el; // Chính là #main-product
+        const product = this.el;
         const bubbles = document.querySelector('#bubbles');
         const seaLife = document.querySelector('#sea-life');
         const light = document.querySelector('#underwater-light');
 
-        // Chạy animation xuống nước
+        // 1. Hiệu ứng lặn: Di chuyển sản phẩm xuống (trục Y âm)
         product.setAttribute('animation__dive', {
           property: 'position',
-          to: '0 -2 0',
+          to: '0 -2 0', // Hạ thấp xuống 2 đơn vị
           dur: 3000,
           easing: 'easeInQuad'
         });
 
-        // Hiện bong bóng
-        if (bubbles) bubbles.setAttribute('visible', true);
+        // 2. Hiện bong bóng ngay lập tức
+        if (bubbles) {
+          bubbles.setAttribute('visible', true);
+        }
 
-        // Sau 1.5s hiện sinh vật biển và tăng sáng
+        // 3. Sau 1.5 giây: Hiện cá và bật đèn
         setTimeout(() => {
           if (seaLife) seaLife.setAttribute('visible', true);
+
           if (light) {
             light.setAttribute('animation__brighten', {
               property: 'light.intensity',
@@ -239,7 +240,7 @@
 
 <body>
   <a-scene mindar-image="imageTargetSrc: targets.mind" color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights: true" vr-mode-ui="enabled: false"
+    renderer="colorManagement: true; exposure: 1.2" vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
 
     <a-assets>
@@ -276,14 +277,16 @@
       <img id="c4" src="asset/ans/c4.png">
 
     </a-assets>
-
+    <a-entity light="type: ambient; intensity: 1"></a-entity>
+    <a-entity light="type: directional; intensity: 0.8; castShadow: true" position="1 4 3"></a-entity>
+    <a-entity light="type: directional; intensity: 0.5" position="-2 1 2"></a-entity>
     <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
       raycaster="objects: .clickable"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
-        <a-gltf-model src="#logo" position="0 0.3 0" scale="0.5 0.5 0.5"
+      <a-entity id="welcome" visible="false" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
+        <a-gltf-model src="#logo" position="0 0.3 0" scale="0.4 0.4 0.4"
           animation-mixer="clip: *;loop: once; clampWhenFinished: true">
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.5 0.6 0"
@@ -322,45 +325,52 @@
         position="2 5 -2" rotation="-70 0 0">
       </a-entity>
 
-      <a-entity id="assembly" visible="false">
-        <a-gltf-model src="#logo2" position="0 0.6 0" scale="0.2 0.2 0.2"></a-gltf-model>
+      <a-entity id="assembly" visible="true">
+        <a-entity id="main-product" gltf-model="#sp" class="clickable" diving-effect position="0 0 0"
+          scale="0.5 0.5 0.5" animation-mixer="clip: *;loop: once;clampWhenFinished: true" rotation=" 0 180 0">
 
-        <a-entity id="main-product" gltf-model="#sp" class="clickable" diving-effect>
-          <a-entity id="bubbles" position="0 0 0" visible="false"
-            particle-system="preset: snow; color: #ffffff; size: 0.1; velocityValue: 0 2 0; particleCount: 100">
+          <a-entity id="bubbles" visible="false">
+            <a-sphere color="white" opacity="0.5" radius="0.05" position="0 0 0"
+              animation="property: position; to: 0.1 2 0.1; dur: 2000; loop: true; easing: linear">
+            </a-sphere>
+            <a-sphere color="white" opacity="0.4" radius="0.03" position="0.2 0 -0.1"
+              animation="property: position; to: -0.1 2 0.2; dur: 2500; delay: 500; loop: true; easing: linear">
+            </a-sphere>
+            <a-sphere color="white" opacity="0.3" radius="0.04" position="-0.1 0 0.1"
+              animation="property: position; to: 0 2 -0.2; dur: 1800; delay: 200; loop: true; easing: linear">
+            </a-sphere>
           </a-entity>
-        </a-entity>
 
-        <a-entity id="sea-life" visible="false">
+          <a-entity id="sea-life" visible="false">
 
-          <a-entity id="ray-pivot" position="0 -2 0"
-            animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
+            <a-entity id="ray-pivot" position="0 -2 0"
+              animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
 
-            <a-gltf-model src="#ray" position="2 0 0" rotation="0 90 0" scale="0.5 0.5 0.5" animation-mixer>
+              <a-gltf-model src="#ray" position="2 0 0" rotation="0 90 0" scale="0.5 0.5 0.5" animation-mixer>
+              </a-gltf-model>
+
+            </a-entity>
+
+            <a-gltf-model src="#la" position="1 -2.5 -1" scale="0.1 0.1 0.1">
             </a-gltf-model>
 
           </a-entity>
 
-          <a-gltf-model src="#la" position="1 -2.5 -1" scale="0.1 0.1 0.1">
-          </a-gltf-model>
-
+          <a-gltf-model class="clickable" scene-switch="target: #reward" src="#link" position="0.3 0.6 0"
+            scale="0.1 0.1 0.1"></a-gltf-model>
         </a-entity>
 
-        <a-gltf-model class="clickable" scene-switch="target: #reward" src="#link" position="0.3 0.6 0"
-          scale="0.1 0.1 0.1"></a-gltf-model>
+
+        <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false">
+
+          <a-gltf-model id="gift-harec" position="0.3 0 0" scale="0.1 0.1 0.1" rotation="0 0 0">
+          </a-gltf-model>
+
+          <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0" class="clickable"
+            link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
+        </a-entity>
+
       </a-entity>
-
-
-      <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false">
-
-        <a-gltf-model id="gift-harec" position="0.3 0 0" scale="0.1 0.1 0.1" rotation="0 0 0">
-        </a-gltf-model>
-
-        <a-gltf-model src="#link" position="0.5 0.3 0" scale="0.1 0.1 0.1" rotation="0 0 0" class="clickable"
-          link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
-      </a-entity>
-
-    </a-entity>
   </a-scene>
 </body>
 
