@@ -79,7 +79,7 @@
       } else {
         // HOÀN THÀNH: Chuyển sang Scene Assembly
         this.el.setAttribute('visible', false);
-        const assemblyScene = document.querySelector("#assembly");
+        const assemblyScene = document.querySelector("#reward");
         if (assemblyScene) {
           assemblyScene.setAttribute('visible', true);
         }
@@ -352,7 +352,7 @@
         position="2 5 -2" rotation="-70 0 0">
       </a-entity>
 
-      <a-entity id="assembly" visible="false">
+      <!-- <a-entity id="assembly" visible="false">
 
           <a-gltf-model src="#sp" class="clickable" diving-effect position="0 0 0"
           scale="0.2 0.2 0.2" animation-mixer="clip: *;loop: once;clampWhenFinished: true" rotation=" 0 180 0"></a-gltf-model>
@@ -381,7 +381,7 @@
             scale="0.1 0.1 0.1" scene-switch="target: #reward"
             animation__fadein="property: scale; to: 0.1 0.1 0.1; dur: 1000; easing: easeOutBack; startEvents: show-button"></a-gltf-model>
         
-      </a-entity>
+      </a-entity> -->
 
       <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false">
 
