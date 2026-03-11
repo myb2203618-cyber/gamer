@@ -215,7 +215,7 @@
   ////random-qua///////////////////////////////////////
   AFRAME.registerComponent('gift', {
     init: function () {
-      // Lắng nghe sự kiện khi entity này được hiển thị (visible chuyển từ false sang true)
+      // Lắng nghe sự kiện visible
       this.el.addEventListener('componentchanged', (evt) => {
         if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
           this.generateReward();
@@ -224,37 +224,53 @@
     },
 
     generateReward: function () {
-      // 1. Định nghĩa tỉ lệ (Tổng = 100)
-      // q4: 10%, q3: 20%, q2: 30%, q1: 40% (Bạn ghi nhầm hai lần q4 nên mình chỉnh lại q1 là 40%)
-      const randomNum = Math.floor(Math.random() * 100) + 1; // 1 đến 100
+      // 1. Tính toán ngẫu nhiên
+      const randomNum = Math.floor(Math.random() * 100) + 1;
       let selectedGift = "";
+      if (randomNum <= 10) selectedGift = "#q4";
+      else if (randomNum <= 30) selectedGift = "#q3";
+      else if (randomNum <= 60) selectedGift = "#q2";
+      else selectedGift = "#q1";
 
-      if (randomNum <= 10) {
-        selectedGift = "#q4"; // 10% (1-10)
-      } else if (randomNum <= 30) {
-        selectedGift = "#q3"; // 20% (11-30)
-      } else if (randomNum <= 60) {
-        selectedGift = "#q2"; // 30% (31-60)
-      } else {
-        selectedGift = "#q1"; // 40% (61-100)
-      }
-
-      // 2. Cập nhật model
       const giftDisplay = document.querySelector("#gift-harec");
+
       if (giftDisplay) {
+        // 2. Cập nhật model mới
         giftDisplay.setAttribute('src', selectedGift);
-        // Reset lại animation để nó chạy lại từ đầu mỗi khi đổi quà
-        giftDisplay.removeAttribute('animation-mixer');
-        giftDisplay.setAttribute('animation-mixer', "clip: Animation 2; loop: once; clampWhenFinished: true");
+
+        // QUAN TRỌNG: Đợi model tải xong dữ liệu mới gán animation
+        giftDisplay.addEventListener('model-loaded', () => {
+          // Xóa mixer cũ để tránh xung đột
+          giftDisplay.removeAttribute('animation-mixer');
+
+          // Gán mixer mới với tên clip bạn đã thấy trong Blippar/Blender
+          // Nếu "Animation 2" không chạy, hãy thử đổi thành "clip: *"
+          giftDisplay.setAttribute('animation-mixer', {
+            clip: 'Animation 2',
+            loop: 'once',
+            clampWhenFinished: true
+          });
+        }, { once: true }); // model-loaded chỉ chạy 1 lần cho mỗi lần đổi src
       }
 
-      // 3. Phát âm thanh "rewards"
-      if (this.el.components.sound) {
-        this.el.components.sound.stopSound();
-        this.el.components.sound.playSound();
-      }
+      // 3. Xử lý âm thanh
+      this.playRewardSound();
 
-      console.log("Phần quà may mắn nhận được:", selectedGift);
+      console.log("Phần quà nhận được:", selectedGift);
+    },
+
+    playRewardSound: function () {
+      // Lấy trực tiếp element audio từ assets
+      const sound = document.querySelector("#send");
+      if (sound) {
+        sound.pause(); // Dừng nếu đang chạy
+        sound.currentTime = 0; // Reset về đầu
+
+        // Sử dụng .play() của HTML5 Audio để có độ trễ thấp hơn
+        sound.play().catch(err => {
+          console.warn("Âm thanh bị trình duyệt chặn hoặc chưa tải xong:", err);
+        });
+      }
     }
   });
 </script>
@@ -310,7 +326,7 @@
     <a-entity mindar-image-target="targetIndex: 0">
 
       <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
-        
+
         <a-gltf-model src="#logo" position="-0.1 0.3 0" scale="0.3 0.3 0.3"
           animation-mixer="clip: *;loop: once; clampWhenFinished: true">
         </a-gltf-model>
@@ -324,7 +340,7 @@
       </a-entity>
 
       <a-entity id="leaderboard" visible="false">
-        
+
         <a-text value="LEADERBOARD" align="center" position="0 0.5 0" color="yellow"></a-text>
         <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#ans1" position="0 -0.5 0"
           scale="0.05 0.05 0.05"></a-gltf-model>
@@ -388,7 +404,7 @@
         <a-gltf-model id="gift-harec" position="0.3 0 0" scale="0.3 0.3 0.3" rotation="0 45 0">
         </a-gltf-model>
 
-        <a-gltf-model src="#link" position="0.4 0.3 0" scale="0.2 0.2 0.2" rotation="0 0 0" class="clickable"
+        <a-gltf-model src="#link" position="0.4 -0.3 0" scale="0.2 0.2 0.2" rotation="0 0 0" class="clickable"
           link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
       </a-entity>
 
