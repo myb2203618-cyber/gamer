@@ -12,6 +12,18 @@
 </head>
 <script>
 
+AFRAME.registerComponent('play-on-visible', {
+  init: function () {
+    this.el.addEventListener('componentchanged', (evt) => {
+      if (evt.detail.name === 'visible' && this.el.getAttribute('visible')) {
+        const sound = this.el.components.sound;
+        if (sound) {
+          sound.playSound();
+        }
+      }
+    });
+  }
+});
   ///////////////effects
   AFRAME.registerComponent('scene-switch', {
     schema: {
@@ -114,70 +126,61 @@
 
   AFRAME.registerComponent('diving-effect', {
     init: function () {
-      this.el.addEventListener('click', () => {
-        const product = this.el;
-        const bubbles = document.querySelectorAll('#bubbles a-sphere');
-        const seaLife = document.querySelector('#sea-life');
-        const light = document.querySelector('#underwater-light');
+      const product = this.el;
+      const bubbles = document.querySelector('#bubbles');
+      const bubbleSpheres = document.querySelectorAll('#bubbles a-sphere');
+      const seaLife = document.querySelector('#sea-life');
+      const light = document.querySelector('#underwater-light');
+      const rewardButton = document.querySelector('#btn-get-reward');
 
-        // 1. Tạo hiệu ứng rung cho chai nước hoa (giống như đang rơi mạnh)
-        product.setAttribute('animation__shake', {
-          property: 'rotation',
-          from: '0 180 -1',
-          to: '0 180 1',
-          dur: 100,
-          loop: true,
-          dir: 'alternate'
-        });
+      // Sự kiện xảy ra khi animation-mixer của sản phẩm (src="#sp") chạy xong clip
+      product.addEventListener('animation-finished', () => {
+        console.log("Sản phẩm đã xuất hiện xong, bắt đầu hiệu ứng lặn...");
 
-        // 2. Kích hoạt bong bóng vọt lên CỰC NHANH
-        bubbles.forEach((b) => {
-          // Lấy vị trí hiện tại của bong bóng để bắt đầu vọt lên từ đó
-          const currentPos = b.getAttribute('position');
-          b.setAttribute('animation', {
-            property: 'position',
-            from: `${currentPos.x} ${currentPos.y} ${currentPos.z}`,
-            to: `${currentPos.x} 5 ${currentPos.z}`, // Vọt lên trời
-            dur: 800, // Rất nhanh
-            loop: true,
-            easing: 'easeInQuad'
+        // 1. Hiện bong bóng và kích hoạt vọt lên
+        if (bubbles) {
+          bubbles.setAttribute('visible', true);
+          bubbleSpheres.forEach((b) => {
+            const currentPos = b.getAttribute('position');
+            b.setAttribute('animation', {
+              property: 'position',
+              to: `${currentPos.x} 5 ${currentPos.z}`,
+              dur: 800,
+              loop: true,
+              easing: 'easeInQuad'
+            });
           });
-        });
+        }
 
-        // 3. Cho sinh vật biển bay lướt qua từ dưới lên
+        // 2. Cho cá bơi và bật đèn (trễ 300ms)
         setTimeout(() => {
           if (seaLife) {
             seaLife.setAttribute('visible', true);
             seaLife.setAttribute('animation', {
               property: 'position',
               from: '0 -5 0',
-              to: '0 8 0',
+              to: '0 0 0', // Đưa về vị trí trung tâm để bơi
               dur: 2000,
-              easing: 'linear'
+              easing: 'easeOutQuad'
             });
           }
 
-          // Bật đèn hắt sáng mạnh hơn
           if (light) {
             light.setAttribute('animation__brighten', {
               property: 'light.intensity',
               to: 2.5,
-              dur: 1000
+              dur: 1500
             });
           }
         }, 300);
 
-        // 4. (Tùy chọn) Sau 4 giây, dừng rung để cảm giác đã đáp xuống đáy
-        const rewardButton = document.querySelector('#btn-get-reward');
-
-        // Sau khi lặn và cá bơi ổn định (ví dụ sau 4 giây)
+        // 3. Hiện nút nhận quà sau khi mọi thứ ổn định (4 giây sau khi bắt đầu lặn)
         setTimeout(() => {
           if (rewardButton) {
             rewardButton.setAttribute('visible', true);
-            // Kích hoạt animation phóng to nút lên
-            rewardButton.emit('show-button');
+            rewardButton.emit('show-button'); // Kích hoạt animation phóng to nút
 
-            // Có thể thêm hiệu ứng nhấp nháy để thu hút sự chú ý
+            // Hiệu ứng nhấp nháy cho nút
             rewardButton.setAttribute('animation__pulse', {
               property: 'scale',
               from: '0.1 0.1 0.1',
@@ -187,29 +190,19 @@
               dir: 'alternate'
             });
           }
-        }, 5000); // 5000ms = 5 giây sau khi ấn vào chai nước hoa
+        }, 4000);
       });
-    }
-  });
-  //////////////ray
-  AFRAME.registerComponent('swim-around', {
-    schema: {
-      target: { type: 'selector' }, // Tâm là sản phẩm
-      radius: { default: 3 },      // Khoảng cách bơi
-      speed: { default: 1 }        // Tốc độ bơi
-    },
-    tick: function (time, deltaTime) {
-      // Tính toán vị trí theo hình tròn dựa trên thời gian
-      const angle = time / 1000 * this.data.speed;
-      const x = Math.cos(angle) * this.data.radius;
-      const z = Math.sin(angle) * this.data.radius;
-      const y = Math.sin(angle * 0.5) * 0.5; // Nhấp nhô lên xuống nhẹ
 
-      // Cập nhật vị trí cho cá
-      this.el.setAttribute('position', { x: x, y: y - 2, z: z });
-
-      // Xoay đầu cá hướng theo hướng bơi
-      this.el.setAttribute('rotation', { x: 0, y: -(angle * 180 / Math.PI) + 180, z: 0 });
+      // Mồi âm thanh phần thưởng khi người dùng click vào nút nhận quà
+      // Điều này giúp "mở khóa" âm thanh cho Scene Reward tiếp theo
+      if (rewardButton) {
+        rewardButton.addEventListener('click', () => {
+          const rewardSound = document.querySelector("#send");
+          if (rewardSound) {
+            rewardSound.play().then(() => rewardSound.pause());
+          }
+        });
+      }
     }
   });
   ////random-qua///////////////////////////////////////
@@ -325,7 +318,7 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
+      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1" play-on-visible>
 
         <a-gltf-model src="#logo" position="-0.25 0.3 0" scale="0.3 0.3 0.3"
           animation-mixer="clip: *;loop: once; clampWhenFinished: true">
@@ -369,35 +362,29 @@
       </a-entity>
 
       <a-entity id="assembly" visible="false">
+        <a-gltf-model id="main-product" src="#sp" diving-effect position="0 0 0" scale="0.2 0.2 0.2" rotation="0 180 0"
+          animation-mixer="clip: *; loop: once; clampWhenFinished: true">
+        </a-gltf-model>
 
-          <a-gltf-model src="#sp" class="clickable" diving-effect position="0 0 0"
-          scale="0.2 0.2 0.2" animation-mixer="clip: *;loop: once;clampWhenFinished: true" rotation=" 0 180 0"></a-gltf-model>
-          <a-entity id="bubbles" visible="false">
-            <a-sphere color="white" opacity="0.5" radius="0.05" position="0 0 0"
-              animation="property: position; to: 0.1 2 0.1; dur: 2000; loop: true; easing: linear">
-            </a-sphere>
-            <a-sphere color="white" opacity="0.4" radius="0.03" position="0.2 0 -0.1"
-              animation="property: position; to: -0.1 2 0.2; dur: 2500; delay: 500; loop: true; easing: linear">
-            </a-sphere>
-            <a-sphere color="white" opacity="0.3" radius="0.04" position="-0.1 0 0.1"
-              animation="property: position; to: 0 2 -0.2; dur: 1800; delay: 200; loop: true; easing: linear">
-            </a-sphere>
+        <a-entity id="bubbles" visible="false" position="0 0 0">
+          <a-sphere color="white" opacity="0.5" radius="0.05" position="0 0 0"></a-sphere>
+          <a-sphere color="white" opacity="0.4" radius="0.03" position="0.2 0 -0.1"></a-sphere>
+          <a-sphere color="white" opacity="0.3" radius="0.04" position="-0.1 0 0.1"></a-sphere>
+        </a-entity>
+
+        <a-entity id="sea-life" visible="false" position="0 -5 0">
+          <a-entity id="ray-pivot" animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
+            <a-gltf-model src="#ray" position="2 0 0" rotation="0 90 0" scale="0.6 0.6 0.6"
+              animation-mixer></a-gltf-model>
           </a-entity>
+          <a-gltf-model src="#la" position="1 -2.5 -1" scale="0.1 0.1 0.1"></a-gltf-model>
+        </a-entity>
 
-          <a-entity id="sea-life" visible="false">
-            <a-entity id="ray-pivot" position="0 -2 0"
-              animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
-              <a-gltf-model src="#ray" position="2 0 0" rotation="0 90 0" scale="0.6 0.6 0.6" animation-mixer>
-              </a-gltf-model>
-            </a-entity>
-            <a-gltf-model src="#la" position="1 -2.5 -1" scale="0.1 0.1 0.1"></a-gltf-model>
-          </a-entity>
-
-          <a-gltf-model id="btn-get-reward" src="#link" class="clickable" visible="false" position="0 -0.5 0.2"
-            scale="0.1 0.1 0.1" scene-switch="target: #reward"
-            animation__fadein="property: scale; to: 0.1 0.1 0.1; dur: 1000; easing: easeOutBack; startEvents: show-button"></a-gltf-model>
-        
-      </a-entity> 
+        <a-gltf-model id="btn-get-reward" src="#link" class="clickable" visible="false" position="0 -0.5 0.2"
+          scale="0.001 0.001 0.001" scene-switch="target: #reward"
+          animation__fadein="property: scale; to: 0.1 0.1 0.1; dur: 1000; easing: easeOutBack; startEvents: show-button">
+        </a-gltf-model>
+      </a-entity>
 
       <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false">
 
