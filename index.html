@@ -310,6 +310,7 @@
     <a-entity mindar-image-target="targetIndex: 0">
 
       <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
+        
         <a-gltf-model src="#logo" position="0 0.3 0" scale="0.4 0.4 0.4"
           animation-mixer="clip: *;loop: once; clampWhenFinished: true">
         </a-gltf-model>
@@ -323,9 +324,11 @@
       </a-entity>
 
       <a-entity id="leaderboard" visible="false">
+        
         <a-text value="LEADERBOARD" align="center" position="0 0.5 0" color="yellow"></a-text>
         <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#ans1" position="0 -0.5 0"
           scale="0.05 0.05 0.05"></a-gltf-model>
+
       </a-entity>
 
       <a-entity id="quiz" visible="false" quiz-logic>
@@ -350,9 +353,9 @@
       </a-entity>
 
       <a-entity id="assembly" visible="false">
+
         <a-entity id="main-product" gltf-model="#sp" class="clickable" diving-effect position="0 0 0"
           scale="0.2 0.2 0.2" animation-mixer="clip: *;loop: once;clampWhenFinished: true" rotation=" 0 180 0">
-
           <a-entity id="bubbles" visible="false">
             <a-sphere color="white" opacity="0.5" radius="0.05" position="0 0 0"
               animation="property: position; to: 0.1 2 0.1; dur: 2000; loop: true; easing: linear">
@@ -366,18 +369,12 @@
           </a-entity>
 
           <a-entity id="sea-life" visible="false">
-
             <a-entity id="ray-pivot" position="0 -2 0"
               animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
-
               <a-gltf-model src="#ray" position="2 0 0" rotation="0 90 0" scale="0.6 0.6 0.6" animation-mixer>
               </a-gltf-model>
-
             </a-entity>
-
-            <a-gltf-model src="#la" position="1 -2.5 -1" scale="0.1 0.1 0.1">
-            </a-gltf-model>
-
+            <a-gltf-model src="#la" position="1 -2.5 -1" scale="0.1 0.1 0.1"></a-gltf-model>
           </a-entity>
 
           <a-gltf-model id="btn-get-reward" src="#link" class="clickable" visible="false" position="0 -0.5 0.2"
