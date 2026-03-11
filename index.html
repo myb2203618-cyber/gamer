@@ -79,7 +79,7 @@
       } else {
         // HOÀN THÀNH: Chuyển sang Scene Assembly
         this.el.setAttribute('visible', false);
-        const assemblyScene = document.querySelector("#reward");
+        const assemblyScene = document.querySelector("#assembly");
         if (assemblyScene) {
           assemblyScene.setAttribute('visible', true);
         }
@@ -327,7 +327,7 @@
 
       <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
 
-        <a-gltf-model src="#logo" position="-0.1 0.3 0" scale="0.3 0.3 0.3"
+        <a-gltf-model src="#logo" position="-0.25 0.3 0" scale="0.3 0.3 0.3"
           animation-mixer="clip: *;loop: once; clampWhenFinished: true">
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.35 0.6 0"
@@ -368,7 +368,7 @@
         position="2 5 -2" rotation="-70 0 0">
       </a-entity>
 
-      <!-- <a-entity id="assembly" visible="false">
+      <a-entity id="assembly" visible="false">
 
           <a-gltf-model src="#sp" class="clickable" diving-effect position="0 0 0"
           scale="0.2 0.2 0.2" animation-mixer="clip: *;loop: once;clampWhenFinished: true" rotation=" 0 180 0"></a-gltf-model>
@@ -397,14 +397,14 @@
             scale="0.1 0.1 0.1" scene-switch="target: #reward"
             animation__fadein="property: scale; to: 0.1 0.1 0.1; dur: 1000; easing: easeOutBack; startEvents: show-button"></a-gltf-model>
         
-      </a-entity> -->
+      </a-entity> 
 
       <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false">
 
-        <a-gltf-model id="gift-harec" position="0.3 0 0" scale="0.3 0.3 0.3" rotation="0 45 0">
+        <a-gltf-model id="gift-harec" position="0.3 0 0" scale="0.3 0.3 0.3" rotation="0 0 0">
         </a-gltf-model>
 
-        <a-gltf-model src="#link" position="0.4 -0.3 0" scale="0.2 0.2 0.2" rotation="0 0 0" class="clickable"
+        <a-gltf-model src="#link" position="0.4 -0.5 0" scale="0.2 0.2 0.2" rotation="0 0 0" class="clickable"
           link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
       </a-entity>
 
