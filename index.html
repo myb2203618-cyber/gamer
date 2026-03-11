@@ -354,8 +354,9 @@
 
       <a-entity id="assembly" visible="false">
 
-        <a-entity id="main-product" gltf-model="#sp" class="clickable" diving-effect position="0 0 0"
-          scale="0.2 0.2 0.2" animation-mixer="clip: *;loop: once;clampWhenFinished: true" rotation=" 0 180 0">
+        <a-entity id="main-product">
+          <a-gltf-model src="#sp" class="clickable" diving-effect position="0 0 0"
+          scale="0.2 0.2 0.2" animation-mixer="clip: *;loop: once;clampWhenFinished: true" rotation=" 0 180 0"></a-gltf-model>
           <a-entity id="bubbles" visible="false">
             <a-sphere color="white" opacity="0.5" radius="0.05" position="0 0 0"
               animation="property: position; to: 0.1 2 0.1; dur: 2000; loop: true; easing: linear">
