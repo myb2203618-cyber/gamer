@@ -104,24 +104,26 @@
       if (this.currentQuestionIndex < this.totalQuestions) {
         const currentQ = this.questions[this.currentQuestionIndex];
 
-        // 1. Đổi ảnh câu hỏi
-        if (this.questionDisplay) {
-          this.questionDisplay.setAttribute('src', currentQ.qImage);
-        }
+      // 1. Cập nhật hình ảnh
+      if (this.questionDisplay) {
+        this.questionDisplay.setAttribute('src', currentQ.qImage);
+      }
 
-        // 2. Phát âm thanh đọc câu hỏi
-        if (voicePlayer && voicePlayer.components.sound) {
-          // Dừng âm thanh cũ trước khi phát âm thanh mới
-          voicePlayer.components.sound.stopSound();
+      // 2. Xử lý âm thanh
+      if (voicePlayer && voicePlayer.components.sound) {
+        voicePlayer.components.sound.stopSound();
+        
+        // Cập nhật nguồn âm thanh mới
+        voicePlayer.setAttribute('sound', 'src', currentQ.qSound);
 
-          // Cập nhật file âm thanh mới và phát
-          voicePlayer.setAttribute('sound', 'src', currentQ.qSound);
-
-          // Đợi một chút để A-Frame cập nhật src rồi mới phát
+        // Chỉ phát nếu scene đang hiển thị 
+        if (this.el.getAttribute('visible') === true) {
+          // Dùng setTimeout cực ngắn để A-Frame kịp load buffer src mới
           setTimeout(() => {
             voicePlayer.components.sound.playSound();
-          }, 100);
+          }, 150);
         }
+      }
       } else {
         // Hoàn thành: Dừng âm thanh trước khi chuyển cảnh
         if (voicePlayer && voicePlayer.components.sound) voicePlayer.components.sound.stopSound();
