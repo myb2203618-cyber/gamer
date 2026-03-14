@@ -12,6 +12,7 @@
 </head>
 <script>
   function handleInfoInput() {
+    if (infoEntity.getAttribute('visible') === false) return;
     // 1. Nhập tên
     const nameInput = prompt("Vui lòng nhập tên của bạn:");
     if (!nameInput || nameInput.trim() === "") {
@@ -399,13 +400,13 @@
           material="transparent: true; shader: flat">
         </a-plane>
         <a-entity id="question-voice-player" sound="src: ; volume: 1;autoplay: false; loop: false"></a-entity>
-        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.5 0 0" scale="0.1 0.1 0.1"
+        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.3 0 0" scale="0.2 0.2 0.2"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans2" position="0.5 0 0" scale="0.1 0.1 0.1"
+        <a-gltf-model class="clickable quiz-option" src="#ans2" position="0.3 0 0" scale="0.2 0.2 0.2"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans3" position="-0.5 -0.2 0" scale="0.1 0.1 0.1"
+        <a-gltf-model class="clickable quiz-option" src="#ans3" position="-0.3 -0.2 0" scale="0.2 0.2 0.2"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.5 -0.2 0" scale="0.1 0.1 0.1"
+        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.3 -0.2 0" scale="0.2 0.2 0.2"
           rotation="0 0 0"></a-gltf-model>
 
       </a-entity>
@@ -467,6 +468,7 @@
     logo.addEventListener('click', function () {
       if (isPhoneSubmitted) {
         infoEntity.setAttribute('visible', 'false');
+        
         welcomeEntity.setAttribute('visible', 'true');
 
         // // Cập nhật lời chào cá nhân hóa ở màn hình Welcome
