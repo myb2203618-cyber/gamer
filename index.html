@@ -33,8 +33,13 @@
       phoneDisplay.setAttribute('material', 'color', '#28a745');
 
       // Chạy Animation & Sound Logo
-      logo.setAttribute('animation-mixer', "enabled: true");
+      logo.setAttribute('animation-mixer', {
+        clip: '*',
+        enabled: true,
+        loop: 'repeat'
+      });
       if (logo.components.sound) {
+        logo.components.sound.stopSound(); // Dừng nếu đang phát dở
         logo.components.sound.playSound();
       }
 
@@ -50,6 +55,7 @@
     },
     init: function () {
       this.el.addEventListener('click', () => {
+        if (this.el.getAttribute('visible') === false) return;
         // Tìm scene cha hiện tại đang chứa nút được bấm
         const currentScene = this.el.closest('a-entity[id]');
         if (currentScene) currentScene.setAttribute('visible', false);
@@ -104,26 +110,26 @@
       if (this.currentQuestionIndex < this.totalQuestions) {
         const currentQ = this.questions[this.currentQuestionIndex];
 
-      // 1. Cập nhật hình ảnh
-      if (this.questionDisplay) {
-        this.questionDisplay.setAttribute('src', currentQ.qImage);
-      }
-
-      // 2. Xử lý âm thanh
-      if (voicePlayer && voicePlayer.components.sound) {
-        voicePlayer.components.sound.stopSound();
-        
-        // Cập nhật nguồn âm thanh mới
-        voicePlayer.setAttribute('sound', 'src', currentQ.qSound);
-
-        // Chỉ phát nếu scene đang hiển thị 
-        if (this.el.getAttribute('visible') === true) {
-          // Dùng setTimeout cực ngắn để A-Frame kịp load buffer src mới
-          setTimeout(() => {
-            voicePlayer.components.sound.playSound();
-          }, 150);
+        // 1. Cập nhật hình ảnh
+        if (this.questionDisplay) {
+          this.questionDisplay.setAttribute('src', currentQ.qImage);
         }
-      }
+
+        // 2. Xử lý âm thanh
+        if (voicePlayer && voicePlayer.components.sound) {
+          voicePlayer.components.sound.stopSound();
+
+          // Cập nhật nguồn âm thanh mới
+          voicePlayer.setAttribute('sound', 'src', currentQ.qSound);
+
+          // Chỉ phát nếu scene đang hiển thị 
+          if (this.el.getAttribute('visible') === true) {
+            // Dùng setTimeout cực ngắn để A-Frame kịp load buffer src mới
+            setTimeout(() => {
+              voicePlayer.components.sound.playSound();
+            }, 150);
+          }
+        }
       } else {
         // Hoàn thành: Dừng âm thanh trước khi chuyển cảnh
         if (voicePlayer && voicePlayer.components.sound) voicePlayer.components.sound.stopSound();
@@ -393,13 +399,13 @@
           material="transparent: true; shader: flat">
         </a-plane>
         <a-entity id="question-voice-player" sound="src: ; volume: 1;autoplay: false; loop: false"></a-entity>
-        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.3 0 0" scale="0.1 0.1 0.1"
+        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.5 0 0" scale="0.1 0.1 0.1"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans2" position="-0.1 0 0" scale="0.1 0.1 0.1"
+        <a-gltf-model class="clickable quiz-option" src="#ans2" position="0.5 0 0" scale="0.1 0.1 0.1"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans3" position="0.1 0 0" scale="0.1 0.1 0.1"
+        <a-gltf-model class="clickable quiz-option" src="#ans3" position="-0.5 -0.2 0" scale="0.1 0.1 0.1"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.3 0 0" scale="0.1 0.1 0.1"
+        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.5 -0.2 0" scale="0.1 0.1 0.1"
           rotation="0 0 0"></a-gltf-model>
 
       </a-entity>
@@ -450,7 +456,7 @@
     const infoEntity = document.querySelector('#info');
     const welcomeEntity = document.querySelector('#welcome');
     const phoneDisplay = document.querySelector('#phone-display');
-    const nameDisplay = document.querySelector('#name-display'); 
+    const nameDisplay = document.querySelector('#name-display');
 
     let isPhoneSubmitted = false;
     let userName = ""; // Biến lưu tên người dùng
