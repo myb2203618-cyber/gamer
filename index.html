@@ -11,73 +11,73 @@
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 </head>
 <script>
-  const logo = document.querySelector('#logo-entity');
-  const infoEntity = document.querySelector('#info');
-  const welcomeEntity = document.querySelector('#welcome');
-  const phoneDisplay = document.querySelector('#phone-display');
-  const nameDisplay = document.querySelector('#name-display'); // Lấy thực thể tên
+  // const logo = document.querySelector('#logo-entity');
+  // const infoEntity = document.querySelector('#info');
+  // const welcomeEntity = document.querySelector('#welcome');
+  // const phoneDisplay = document.querySelector('#phone-display');
+  // const nameDisplay = document.querySelector('#name-display'); // Lấy thực thể tên
 
-  let isPhoneSubmitted = false;
-  let userName = ""; // Biến lưu tên người dùng
+  // let isPhoneSubmitted = false;
+  // let userName = ""; // Biến lưu tên người dùng
 
-  function handleInfoInput() {
-    // 1. Nhập tên
-    const nameInput = prompt("Vui lòng nhập tên của bạn:");
-    if (!nameInput || nameInput.trim() === "") {
-      alert("Tên không được để trống!");
-      return;
-    }
+  // function handleInfoInput() {
+  //   // 1. Nhập tên
+  //   const nameInput = prompt("Vui lòng nhập tên của bạn:");
+  //   if (!nameInput || nameInput.trim() === "") {
+  //     alert("Tên không được để trống!");
+  //     return;
+  //   }
 
-    // 2. Nhập SĐT
-    const phoneInput = prompt("Vui lòng nhập số điện thoại (10 số):");
+  //   // 2. Nhập SĐT
+  //   const phoneInput = prompt("Vui lòng nhập số điện thoại (10 số):");
 
-    // Kiểm tra điều kiện
-    if (phoneInput && phoneInput.length === 10) {
-      userName = nameInput;
-      isPhoneSubmitted = true;
+  //   // Kiểm tra điều kiện
+  //   if (phoneInput && phoneInput.length === 10) {
+  //     userName = nameInput;
+  //     isPhoneSubmitted = true;
 
-      // Cập nhật text hiển thị lên không gian 3D
-      nameDisplay.setAttribute('text', 'value', 'Chao: ' + userName.toUpperCase());
-      phoneDisplay.setAttribute('text', 'value', 'SDT: ' + phoneInput);
-      phoneDisplay.setAttribute('material', 'color', '#28a745');
+  //     // Cập nhật text hiển thị lên không gian 3D
+  //     nameDisplay.setAttribute('text', 'value', 'Chao: ' + userName.toUpperCase());
+  //     phoneDisplay.setAttribute('text', 'value', 'SDT: ' + phoneInput);
+  //     phoneDisplay.setAttribute('material', 'color', '#28a745');
 
-      // Chạy Animation & Sound Logo
-      logo.setAttribute('animation-mixer', "enabled: true");
-      if (logo.components.sound) {
-        logo.components.sound.playSound();
-      }
+  //     // Chạy Animation & Sound Logo
+  //     logo.setAttribute('animation-mixer', "enabled: true");
+  //     if (logo.components.sound) {
+  //       logo.components.sound.playSound();
+  //     }
 
-      console.log("Đã nhận thông tin:", userName, phoneInput);
-    } else {
-      alert("Số điện thoại không hợp lệ!");
-    }
-  }
+  //     console.log("Đã nhận thông tin:", userName, phoneInput);
+  //   } else {
+  //     alert("Số điện thoại không hợp lệ!");
+  //   }
+  // }
 
-  // Sự kiện click vào vùng nhập liệu (bấm vào đâu cũng hiện prompt)
-  phoneDisplay.addEventListener('click', handleInfoInput);
+  // // Sự kiện click vào vùng nhập liệu (bấm vào đâu cũng hiện prompt)
+  // phoneDisplay.addEventListener('click', handleInfoInput);
 
-  // Sự kiện khi click vào logo để qua màn Welcome
-  logo.addEventListener('click', function () {
-    if (isPhoneSubmitted) {
-      infoEntity.setAttribute('visible', 'false');
-      welcomeEntity.setAttribute('visible', 'true');
+  // // Sự kiện khi click vào logo để qua màn Welcome
+  // logo.addEventListener('click', function () {
+  //   if (isPhoneSubmitted) {
+  //     infoEntity.setAttribute('visible', 'false');
+  //     welcomeEntity.setAttribute('visible', 'true');
 
-      // Cập nhật lời chào cá nhân hóa ở màn hình Welcome (nếu cần)
-      const welcomeText = welcomeEntity.querySelector('[text]');
-      if (welcomeText) {
-        welcomeText.setAttribute('text', 'value', 'CHAO MUNG ' + userName.toUpperCase() + ' DEN MANTA AR');
-      }
+  //     // Cập nhật lời chào cá nhân hóa ở màn hình Welcome (nếu cần)
+  //     const welcomeText = welcomeEntity.querySelector('[text]');
+  //     if (welcomeText) {
+  //       welcomeText.setAttribute('text', 'value', 'CHAO MUNG ' + userName.toUpperCase() + ' DEN MANTA AR');
+  //     }
 
-      // Phát âm thanh giới thiệu
-      const welcomeVoice = document.querySelector('#welcome');
-      if (welcomeVoice && welcomeVoice.components.sound) {
-        welcomeVoice.components.sound.stopSound();
-        welcomeVoice.components.sound.playSound();
-      }
-    } else {
-      alert("Vui lòng nhập đầy đủ thông tin trước!");
-    }
-  });
+  //     // Phát âm thanh giới thiệu
+  //     const welcomeVoice = document.querySelector('#welcome');
+  //     if (welcomeVoice && welcomeVoice.components.sound) {
+  //       welcomeVoice.components.sound.stopSound();
+  //       welcomeVoice.components.sound.playSound();
+  //     }
+  //   } else {
+  //     alert("Vui lòng nhập đầy đủ thông tin trước!");
+  //   }
+  // });
   ///////////////effects
   AFRAME.registerComponent('scene-switch', {
     schema: {
