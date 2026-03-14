@@ -11,73 +11,38 @@
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 </head>
 <script>
-  // const logo = document.querySelector('#logo-entity');
-  // const infoEntity = document.querySelector('#info');
-  // const welcomeEntity = document.querySelector('#welcome');
-  // const phoneDisplay = document.querySelector('#phone-display');
-  // const nameDisplay = document.querySelector('#name-display'); // Lấy thực thể tên
+  function handleInfoInput() {
+    // 1. Nhập tên
+    const nameInput = prompt("Vui lòng nhập tên của bạn:");
+    if (!nameInput || nameInput.trim() === "") {
+      alert("Tên không được để trống!");
+      return;
+    }
 
-  // let isPhoneSubmitted = false;
-  // let userName = ""; // Biến lưu tên người dùng
+    // 2. Nhập SĐT
+    const phoneInput = prompt("Vui lòng nhập số điện thoại (10 số):");
 
-  // function handleInfoInput() {
-  //   // 1. Nhập tên
-  //   const nameInput = prompt("Vui lòng nhập tên của bạn:");
-  //   if (!nameInput || nameInput.trim() === "") {
-  //     alert("Tên không được để trống!");
-  //     return;
-  //   }
+    // Kiểm tra điều kiện
+    if (phoneInput && phoneInput.length === 10) {
+      userName = nameInput;
+      isPhoneSubmitted = true;
 
-  //   // 2. Nhập SĐT
-  //   const phoneInput = prompt("Vui lòng nhập số điện thoại (10 số):");
+      // Cập nhật text hiển thị lên không gian 3D
+      nameDisplay.setAttribute('text', 'value', 'Chao: ' + userName.toUpperCase());
+      phoneDisplay.setAttribute('text', 'value', 'SDT: ' + phoneInput);
+      phoneDisplay.setAttribute('material', 'color', '#28a745');
 
-  //   // Kiểm tra điều kiện
-  //   if (phoneInput && phoneInput.length === 10) {
-  //     userName = nameInput;
-  //     isPhoneSubmitted = true;
+      // Chạy Animation & Sound Logo
+      logo.setAttribute('animation-mixer', "enabled: true");
+      if (logo.components.sound) {
+        logo.components.sound.playSound();
+      }
 
-  //     // Cập nhật text hiển thị lên không gian 3D
-  //     nameDisplay.setAttribute('text', 'value', 'Chao: ' + userName.toUpperCase());
-  //     phoneDisplay.setAttribute('text', 'value', 'SDT: ' + phoneInput);
-  //     phoneDisplay.setAttribute('material', 'color', '#28a745');
-
-  //     // Chạy Animation & Sound Logo
-  //     logo.setAttribute('animation-mixer', "enabled: true");
-  //     if (logo.components.sound) {
-  //       logo.components.sound.playSound();
-  //     }
-
-  //     console.log("Đã nhận thông tin:", userName, phoneInput);
-  //   } else {
-  //     alert("Số điện thoại không hợp lệ!");
-  //   }
-  // }
-
-  // // Sự kiện click vào vùng nhập liệu (bấm vào đâu cũng hiện prompt)
-  // phoneDisplay.addEventListener('click', handleInfoInput);
-
-  // // Sự kiện khi click vào logo để qua màn Welcome
-  // logo.addEventListener('click', function () {
-  //   if (isPhoneSubmitted) {
-  //     infoEntity.setAttribute('visible', 'false');
-  //     welcomeEntity.setAttribute('visible', 'true');
-
-  //     // Cập nhật lời chào cá nhân hóa ở màn hình Welcome (nếu cần)
-  //     const welcomeText = welcomeEntity.querySelector('[text]');
-  //     if (welcomeText) {
-  //       welcomeText.setAttribute('text', 'value', 'CHAO MUNG ' + userName.toUpperCase() + ' DEN MANTA AR');
-  //     }
-
-  //     // Phát âm thanh giới thiệu
-  //     const welcomeVoice = document.querySelector('#welcome');
-  //     if (welcomeVoice && welcomeVoice.components.sound) {
-  //       welcomeVoice.components.sound.stopSound();
-  //       welcomeVoice.components.sound.playSound();
-  //     }
-  //   } else {
-  //     alert("Vui lòng nhập đầy đủ thông tin trước!");
-  //   }
-  // });
+      console.log("Đã nhận thông tin:", userName, phoneInput);
+    } else {
+      alert("Số điện thoại không hợp lệ!");
+    }
+  }
   ///////////////effects
   AFRAME.registerComponent('scene-switch', {
     schema: {
@@ -103,7 +68,6 @@
       });
     }
   });
-  ////////////////////////////////////////////////////////////////
   //////QUIZ - phancauhoi
   AFRAME.registerComponent('quiz-logic', {
     init: function () {
@@ -186,20 +150,18 @@
         }, 800);
       } else {
         console.log("Sai rồi! Hãy chọn lại.");
-        // Hiệu ứng rung nhẹ khi chọn sai (tùy chọn)
+        // Hiệu ứng rung nhẹ khi chọn sai
         wrongSound.currentTime = 0;
         wrongSound.play();
       }
     }
   });
-
   /////assembly
   // Hàm startDivingEffect cần được đặt ngoài hoặc trong một nơi mà HTML gọi được
-
   AFRAME.registerComponent('diving-effect', {
     init: function () {
       const product = this.el;
-      const bubbles = document.querySelector('#bubbles');
+      const bubbles = document.getElementById('#bubbles');
       const bubbleSpheres = document.querySelectorAll('#bubbles a-sphere');
       const seaLife = document.querySelector('#sea-life');
       const light = document.querySelector('#underwater-light');
@@ -223,8 +185,7 @@
             });
           });
         }
-
-        // 2. Cho cá bơi và bật đèn (trễ 300ms)
+        // 2. Cho cá bơi và bật đèn 
         setTimeout(() => {
           if (seaLife) {
             seaLife.setAttribute('visible', true);
@@ -246,12 +207,11 @@
           }
         }, 300);
 
-        // 3. Hiện nút nhận quà sau khi mọi thứ ổn định (4 giây sau khi bắt đầu lặn)
+        // 3. Hiện nút nhận quà sau khi mọi thứ ổn định 
         setTimeout(() => {
           if (rewardButton) {
             rewardButton.setAttribute('visible', true);
             rewardButton.emit('show-button'); // Kích hoạt animation phóng to nút
-
             // Hiệu ứng nhấp nháy cho nút
             rewardButton.setAttribute('animation__pulse', {
               property: 'scale',
@@ -264,9 +224,8 @@
           }
         }, 4000);
       });
-
       // Mồi âm thanh phần thưởng khi người dùng click vào nút nhận quà
-      // Điều này giúp "mở khóa" âm thanh cho Scene Reward tiếp theo
+      // âm thanh cho Scene Reward tiếp theo
       if (rewardButton) {
         rewardButton.addEventListener('click', () => {
           const rewardSound = document.querySelector("#send");
@@ -287,7 +246,6 @@
         }
       });
     },
-
     generateReward: function () {
       // 1. Tính toán ngẫu nhiên
       const randomNum = Math.floor(Math.random() * 100) + 1;
@@ -308,24 +266,19 @@
           // Xóa mixer cũ để tránh xung đột
           giftDisplay.removeAttribute('animation-mixer');
 
-          // Gán mixer mới với tên clip bạn đã thấy trong Blippar/Blender
-          // Nếu "Animation 2" không chạy, hãy thử đổi thành "clip: *"
+          // Gán mixer mới với tên clip 
           giftDisplay.setAttribute('animation-mixer', {
-            clip: '*',
+            clip: 'Animation 2',
             loop: 'once',
             clampWhenFinished: true
           });
-        }, { once: true }); // model-loaded chỉ chạy 1 lần cho mỗi lần đổi src
+        }, { once: true });
       }
-
       // 3. Xử lý âm thanh
       this.playRewardSound();
-
       console.log("Phần quà nhận được:", selectedGift);
     },
-
     playRewardSound: function () {
-      // Lấy trực tiếp element audio từ assets
       const sound = document.querySelector("#send");
       if (sound) {
         sound.pause(); // Dừng nếu đang chạy
@@ -395,21 +348,22 @@
 
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <!-- <a-entity id="info" visible="true">
+      <a-entity id="info" visible="true">
 
         <a-entity class="clickable" id="logo-entity" gltf-model="#logo" position="0 0.5 0" scale="0.3 0.3 0.3"
           sound="src: #s1; autoplay: false; loop: false; volume: 1"
           animation-mixer="clip: *; loop: repeat; clampWhenFinished: true; enabled: false">
         </a-entity>
-        <a-entity class="clickable" id="name-display" text="value: NHAP TEN CUA BAN; align: center; width: 2.5" position="0 0.2 0">
+        <a-entity class="clickable" id="name-display" text="value: NHAP TEN CUA BAN; align: center; width: 2.5"
+          position="0 0.2 0">
         </a-entity>
         <a-entity class="clickable" id="phone-display" geometry="primitive: plane; width: 1.5; height: 0.4"
           material="color: #333; opacity: 0.8" text="value: NHAP SDT NHAN QUA; align: center; width: 3"
           position="0 0 0">
         </a-entity>
-      </a-entity>  -->
+      </a-entity>
 
-      <a-entity id="welcome" visible="true" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
+      <a-entity id="welcome" visible="false" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
 
         <a-gltf-model src="#logo" position="-0.25 0.3 0" scale="0.3 0.3 0.3"
           animation-mixer="clip: *;loop: once; clampWhenFinished: true">
@@ -465,11 +419,11 @@
 
         <a-entity id="sea-life" visible="false" position="0 -5 0">
           <a-entity id="ray-pivot">
-            <a-gltf-model src="#ray" position="2 0 0" rotation="0 90 0" scale="0.6 0.6 0.6"
+            <a-gltf-model src="#ray" position="2 0 0" rotation="0 90 0" scale="0.4 0.4 0.4"
               animation-mixer="clip:*; loop:repeat">
             </a-gltf-model>
           </a-entity>
-          <a-gltf-model src="#la" position="0.5 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+          <a-gltf-model src="#la" position="1 0 0" scale="1 1 1"></a-gltf-model>
         </a-entity>
 
         <a-gltf-model id="btn-get-reward" src="#link" class="clickable" visible="false" position="0 -0.5 0.2"
@@ -489,6 +443,41 @@
 
     </a-entity>
   </a-scene>
+  <script>
+    const logo = document.querySelector('#logo-entity');
+    const infoEntity = document.querySelector('#info');
+    const welcomeEntity = document.querySelector('#welcome');
+    const phoneDisplay = document.querySelector('#phone-display');
+    const nameDisplay = document.querySelector('#name-display'); 
+
+    let isPhoneSubmitted = false;
+    let userName = ""; // Biến lưu tên người dùng
+    // Sự kiện click vào vùng nhập liệu 
+    phoneDisplay.addEventListener('click', handleInfoInput);
+    //phoneDisplay.onClick=function(){  handleInfoInput();};
+    // Sự kiện khi click vào logo để qua màn Welcome
+    logo.addEventListener('click', function () {
+      if (isPhoneSubmitted) {
+        infoEntity.setAttribute('visible', 'false');
+        welcomeEntity.setAttribute('visible', 'true');
+
+        // // Cập nhật lời chào cá nhân hóa ở màn hình Welcome
+        // const welcomeText = welcomeEntity.querySelector('[text]');
+        // if (welcomeText) {
+        //   welcomeText.setAttribute('text', 'value', 'CHAO MUNG ' + userName.toUpperCase() + ' DEN MANTA AR');
+        // }
+
+        // Phát âm thanh giới thiệu
+        const welcomeVoice = document.querySelector('#welcome');
+        if (welcomeVoice && welcomeVoice.components.sound) {
+          welcomeVoice.components.sound.stopSound();
+          welcomeVoice.components.sound.playSound();
+        }
+      } else {
+        alert("Vui lòng nhập đầy đủ thông tin trước!");
+      }
+    });
+  </script>
 </body>
 
 </html>
