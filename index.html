@@ -79,107 +79,158 @@
     }
   });
   //////QUIZ - phancauhoi
- AFRAME.registerComponent('quiz-logic', {
-  init: function () {
-    this.questions = [
-      { qImage: "#c1", qSound: "#sc1", correct: 2 },
-      { qImage: "#c2", qSound: "#sc2", correct: 0 },
-      { qImage: "#c3", qSound: "#sc3", correct: 2 },
-      { qImage: "#c4", qSound: "#sc4", correct: 1 },
-    ];
-    this.currentQuestionIndex = 0;
-    this.totalQuestions = 3;
-    this.questions = this.questions.sort(() => Math.random() - 0.5);
-    this.questionDisplay = document.querySelector("#question-board");
-    this.optionButtons = this.el.querySelectorAll(".quiz-option");
+  AFRAME.registerComponent('quiz-logic', {
+    init: function () {
+      this.questions = [
+        { qImage: "#c1", qSound: "#sc1", correct: 2 },
+        { qImage: "#c2", qSound: "#sc2", correct: 0 },
+        { qImage: "#c3", qSound: "#sc3", correct: 2 },
+        { qImage: "#c4", qSound: "#sc4", correct: 1 },
+      ];
+      this.currentQuestionIndex = 0;
+      this.totalQuestions = 3;
+      this.questions = this.questions.sort(() => Math.random() - 0.5);
+      this.questionDisplay = document.querySelector("#question-board");
+      this.optionButtons = this.el.querySelectorAll(".quiz-option");
 
-    this.optionButtons.forEach((btn, index) => {
-      btn.addEventListener('click', (evt) => {
-        if (evt) evt.stopPropagation(); // Chống bấm xuyên
+      this.optionButtons.forEach((btn, index) => {
+        btn.addEventListener('click', (evt) => {
+          if (evt) evt.stopPropagation(); // Chống bấm xuyên
+          if (this.el.getAttribute('visible') === true) {
+            this.checkAnswer(index);
+          }
+        });
+      });
+
+      // LẮNG NGHE SỰ KIỆN: Khi màn hình Quiz hiện lên thực sự
+      this.el.addEventListener('componentchanged', (evt) => {
+        if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
+          // Khi Quiz vừa hiện ra, gọi loadQuestion để phát âm thanh câu 1
+          this.loadQuestion();
+        }
+      });
+      this.loadQuestion();
+    },
+
+    loadQuestion: function () {
+      if (this.currentQuestionIndex < this.totalQuestions) {
+        const currentQ = this.questions[this.currentQuestionIndex];
+
+        // 1. Cập nhật hình ảnh 
+        if (this.questionDisplay) {
+          this.questionDisplay.setAttribute('src', currentQ.qImage);
+        }
+
+        // 2. Phát âm thanh (Chỉ chạy khi đang hiển thị)
         if (this.el.getAttribute('visible') === true) {
-          this.checkAnswer(index);
+          const audioId = currentQ.qSound.replace('#', '');
+          const currentAudio = document.getElementById(audioId);
+
+          if (currentAudio) {
+            // Dừng tất cả âm thanh câu hỏi khác
+            ["sc1", "sc2", "sc3", "sc4"].forEach(id => {
+              const a = document.getElementById(id);
+              if (a) { a.pause(); a.currentTime = 0; }
+            });
+
+            // Phát âm thanh câu hiện tại
+            currentAudio.play().catch(e => console.log("Yêu cầu tương tác người dùng"));
+          }
         }
-      });
-    });
+      } else {
+        // HOÀN THÀNH QUIZ
+        // 1. Dừng tất cả âm thanh câu hỏi
+        ["sc1", "sc2", "sc3", "sc4"].forEach(id => {
+          const a = document.getElementById(id);
+          if (a) { a.pause(); a.currentTime = 0; }
+        });
 
-    // LẮNG NGHE SỰ KIỆN: Khi màn hình Quiz hiện lên thực sự
-    this.el.addEventListener('componentchanged', (evt) => {
-      if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
-        // Khi Quiz vừa hiện ra, gọi loadQuestion để phát âm thanh câu 1
-        this.loadQuestion();
+        // 2. Chuyển cảnh 
+        this.el.setAttribute('visible', false);
+        const assemblyScene = document.querySelector("#assembly");
+        if (assemblyScene) {
+          assemblyScene.setAttribute('visible', true);
+          // Kích hoạt animation cho sản phẩm ở màn assembly
+          const mainProduct = document.querySelector("#main-product");
+          if (mainProduct) {
+            mainProduct.setAttribute('animation-mixer', "enabled: true");
+          }
+        }
       }
-    });
+    },
 
-    // Vẫn gọi lần đầu để nạp hình ảnh (âm thanh sẽ chưa phát do visible=false)
-    this.loadQuestion();
-  },
-
-  loadQuestion: function () {
-    if (this.currentQuestionIndex < this.totalQuestions) {
+    checkAnswer: function (selectedIndex) {
       const currentQ = this.questions[this.currentQuestionIndex];
+      const correctSound = document.querySelector("#correct");
+      const wrongSound = document.querySelector("#wrong");
 
-      // 1. Cập nhật hình ảnh (Luôn chạy)
-      if (this.questionDisplay) {
-        this.questionDisplay.setAttribute('src', currentQ.qImage);
+      if (selectedIndex === currentQ.correct) {
+        correctSound.currentTime = 0;
+        correctSound.play();
+
+        setTimeout(() => {
+          this.currentQuestionIndex++;
+          this.loadQuestion();
+        }, 800);
+      } else {
+        wrongSound.currentTime = 0;
+        wrongSound.play();
       }
+    }
+  });
+  /////////////////plant
+  AFRAME.registerComponent('plants', {
+    init: function () {
+      let step = 0;
 
-      // 2. Phát âm thanh (Chỉ chạy khi đang hiển thị)
-      if (this.el.getAttribute('visible') === true) {
-        const audioId = currentQ.qSound.replace('#', '');
-        const currentAudio = document.getElementById(audioId);
+      const lan = document.getElementById('lan');
+      const chau = document.getElementById('chau');
+      const wat = document.getElementById('wat');
+       const wrongSound = document.getElementById('wrongSound');
 
-        if (currentAudio) {
-          // Dừng tất cả âm thanh câu hỏi khác
-          ["sc1", "sc2", "sc3", "sc4"].forEach(id => {
-            const a = document.getElementById(id);
-            if (a) { a.pause(); a.currentTime = 0; }
-          });
-
-          // Phát âm thanh câu hiện tại
-          currentAudio.play().catch(e => console.log("Yêu cầu tương tác người dùng"));
-        }
-      }
-    } else {
-      // HOÀN THÀNH QUIZ
-      // 1. Dừng tất cả âm thanh câu hỏi
-      ["sc1", "sc2", "sc3", "sc4"].forEach(id => {
-        const a = document.getElementById(id);
-        if (a) { a.pause(); a.currentTime = 0; }
+      document.querySelectorAll(".item").forEach(el => {
+        el.addEventListener("click", (e) => {
+          const id = e.currentTarget.id;
+          if (id === "chau" && step === 0) {
+            chau.setAttribute('animation', {
+              property: 'position',
+              to: '0 0 0',
+              dur: 2000,
+              easing: 'easeOutQuad'
+            });
+            step++;
+          }
+          else if (id === "lan" && step === 1) {
+            hoa.setAttribute('animation', {
+              property: 'position',
+              to: '0 0.1 0',
+              dur: 2000,
+              easing: 'easeOutQuad'
+            });
+            step++;
+          }
+          else if (id === "wat" && step === 2) {
+            wat.setAttribute('animation', {
+              property: 'position',
+              to: '0 0.2 0',
+              dur: 2000,
+              easing: 'easeOutQuad'
+            });
+            wat.setAttribute('visible', false);
+            lan.setAttribute('animation-mixer', {
+              clip: '*',
+              loop: 'once',
+              clampWhenFinished: true
+            });
+            step++;
+          } else {
+            wrongSound.currentTime = 0;
+            wrongSound.play();
+          }
+        });
       });
-
-      // 2. Chuyển cảnh (Xóa bỏ đoạn voicePlayer cũ bị lỗi)
-      this.el.setAttribute('visible', false);
-      const assemblyScene = document.querySelector("#assembly");
-      if (assemblyScene) {
-        assemblyScene.setAttribute('visible', true);
-        // Kích hoạt animation cho sản phẩm ở màn assembly
-        const mainProduct = document.querySelector("#main-product");
-        if (mainProduct) {
-          mainProduct.setAttribute('animation-mixer', "enabled: true");
-        }
-      }
     }
-  },
-
-  checkAnswer: function (selectedIndex) {
-    const currentQ = this.questions[this.currentQuestionIndex];
-    const correctSound = document.querySelector("#correct");
-    const wrongSound = document.querySelector("#wrong");
-
-    if (selectedIndex === currentQ.correct) {
-      correctSound.currentTime = 0;
-      correctSound.play();
-
-      setTimeout(() => {
-        this.currentQuestionIndex++;
-        this.loadQuestion();
-      }, 800);
-    } else {
-      wrongSound.currentTime = 0;
-      wrongSound.play();
-    }
-  }
-});
+  });
   /////assembly
   // Hàm startDivingEffect cần được đặt ngoài hoặc trong một nơi mà HTML gọi được
   AFRAME.registerComponent('diving-effect', {
@@ -191,9 +242,9 @@
       const light = document.querySelector('#underwater-light');
       const rewardButton = document.querySelector('#btn-get-reward');
 
-      // Sự kiện xảy ra khi animation-mixer của sản phẩm (src="#sp") chạy xong clip
+      // Sự kiện xảy ra khi animation-mixer của sản phẩm sp chạy xong clip
       product.addEventListener('animation-finished', () => {
-        console.log("Sản phẩm đã xuất hiện xong, bắt đầu hiệu ứng lặn...");
+        // console.log("Sản phẩm đã xuất hiện xong, bắt đầu hiệu ứng lặn...");
 
         // 1. Hiện bong bóng và kích hoạt vọt lên
         if (bubbles) {
@@ -235,8 +286,7 @@
         setTimeout(() => {
           if (rewardButton) {
             rewardButton.setAttribute('visible', true);
-            rewardButton.emit('show-button'); // Kích hoạt animation phóng to nút
-            // Hiệu ứng nhấp nháy cho nút
+            rewardButton.emit('show-button');
             rewardButton.setAttribute('animation__pulse', {
               property: 'scale',
               from: '0.1 0.1 0.1',
@@ -249,7 +299,6 @@
         }, 4000);
       });
       // Mồi âm thanh phần thưởng khi người dùng click vào nút nhận quà
-      // âm thanh cho Scene Reward tiếp theo
       if (rewardButton) {
         rewardButton.addEventListener('click', () => {
           const rewardSound = document.querySelector("#send");
@@ -345,9 +394,13 @@
       <a-asset-item id="q3" src="asset/gift/g40.glb"></a-asset-item>
       <a-asset-item id="q4" src="asset/gift/gs.glb"></a-asset-item>
 
+      <a-asset-item id="hoa" src="asset/lavender.glb"></a-asset-item>
+      <a-asset-item id="chau" src="asset/chau.glb"></a-asset-item>
+      <a-asset-item id="wat" src="asset/wat.glb"></a-asset-item>
+
       <a-asset-item id="ray" src="asset/ray.glb"></a-asset-item>
       <a-asset-item id="la" src="asset/la.glb"></a-asset-item>
-      
+
 
       <audio id="wrong" src="asset/audio/wrong.mp3"></audio>
       <audio id="correct" src="asset/audio/correct.mp3"></audio>
@@ -374,7 +427,7 @@
 
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <a-entity id="info" visible="true">
+      <a-entity id="info" visible="false">
         <a-entity class="clickable" id="logo-entity" gltf-model="#logo" position="0 0.4 0" scale="0.5 0.5 0.5"
           sound="src: #s1; autoplay: false; loop: false; volume: 1"
           animation-mixer="clip: *; loop: repeat; clampWhenFinished: true; enabled: false">
@@ -426,6 +479,12 @@
           rotation="0 0 0"></a-gltf-model>
 
       </a-entity>
+      <a-entity id="plant" visible="true" plants>
+        <a-entity class="item" id="lan" src="#hoa" position=" -0.2 0.8 0" scale="0.2 0.2 0.2"
+          animation-mixer="clip: *; loop: once; clampWhenFinished: true; enabled: false"></a-entity>
+        <a-entity class="item" id="chau" src="#chau" position=" 0 0.8 0" scale="0.2 0.2 0.2"></a-entity>
+        <a-entity class="item" id="wat" src="#wat" position=" 0.2 0.8 0" scale="0.2 0.2 0.2"></a-entity>
+      </a-entity>
       <!-- light -->
       <a-entity id="underwater-light" light="type: spot; color: #00e5ff; intensity: 0; penumbra: 0.5; angle: 30"
         position="2 5 -2" rotation="-70 0 0">
@@ -451,7 +510,7 @@
           <a-gltf-model src="#la" position="1 0 0" scale="1 1 1"></a-gltf-model>
         </a-entity>
 
-        <a-gltf-model id="btn-get-reward" src="#link" class="clickable" visible="false" position="0 -0.5 0.2"
+        <a-gltf-model id="btn-get-reward" src="#gg" class="clickable" visible="false" position="0 -0.5 0.2"
           scale="0.01 0.01 0.01" scene-switch="target: #reward"
           animation__fadein="property: scale; to: 0.2 0.2 0.2; dur: 1000; easing: easeOutBack; startEvents: show-button">
         </a-gltf-model>
