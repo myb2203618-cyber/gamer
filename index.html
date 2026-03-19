@@ -182,62 +182,73 @@
   AFRAME.registerComponent('plants', {
     init: function () {
       let step = 0;
-
       const lan = document.getElementById('lan');
       const chau = document.getElementById('chau');
       const wat = document.getElementById('wat');
-      const wrongSound = document.getElementById('wrongSound');
+      // Sửa lại ID cho đúng với id="wrong" trong phần assets của bạn
+      const wrongSound = document.getElementById('wrong');
 
-      // helper function để animate cho gọn
       const moveTo = (el, toPos) => {
         el.setAttribute('animation__move', {
           property: 'position',
           to: toPos,
-          dur: 2000,
+          dur: 1500,
           easing: 'easeOutQuad'
         });
       };
 
       document.querySelectorAll(".item").forEach(el => {
-        el.addEventListener("click", () => {
+        el.addEventListener("click", (evt) => {
+          // KIỂM TRA QUAN TRỌNG: Chỉ cho click khi màn hình plant đang hiện
+          if (this.el.getAttribute('visible') === false) return;
+
+          // Ngăn chặn click xuyên thấu sang các layer khác
+          if (evt.detail.cursorEl) evt.stopPropagation();
 
           const id = el.id;
 
-          // STEP 0 → chọn chậu
+          // STEP 0: Di chuyển chậu vào tâm (0 0 0)
           if (id === "chau" && step === 0) {
             moveTo(chau, '0 0 0');
             step++;
-            return;
           }
-
-          // STEP 1 → chọn hoa
-          if (id === "lan" && step === 1) {
+          // STEP 1: Đưa hoa vào chậu (0 0.1 0)
+          else if (id === "lan" && step === 1) {
             moveTo(lan, '0 0.1 0');
             step++;
-            return;
           }
+          // STEP 2: Tưới nước và kích hoạt hoa nở
+          else if (id === "wat" && step === 2) {
+            moveTo(wat, '0.2 0.2 0'); // Đưa bình nước lại gần
 
-          // STEP 2 → tưới nước
-          if (id === "wat" && step === 2) {
-            moveTo(wat, '0 0.2 0');
+            setTimeout(() => {
+              // Ẩn bình nước
+              wat.setAttribute('visible', false);
 
-            wat.setAttribute('visible', false);
+              // Kích hoạt animation nở hoa (Quan trọng: phải có enabled: true)
+              lan.setAttribute('animation-mixer', {
+                clip: '*',
+                loop: 'once',
+                enabled: true,
+                clampWhenFinished: true
+              });
 
-            // bật animation của model hoa
-            lan.setAttribute('animation-mixer', {
-              clip: '*',
-              loop: 'once',
-              clampWhenFinished: true
-            });
+              // TỰ ĐỘNG CHUYỂN CẢNH: Sau khi trồng xong 3 giây, hiện màn hình Info
+              setTimeout(() => {
+                this.el.setAttribute('visible', false);
+                const assemScene = document.querySelector('#assembly');
+                if (assemScene) assemScene.setAttribute('visible', true);
+              }, 3000);
 
+            }, 1500);
             step++;
-            return;
           }
-
-          // click sai → phát âm thanh
-          if (wrongSound) {
-            wrongSound.currentTime = 0;
-            wrongSound.play();
+          // Nếu click sai thứ tự
+          else {
+            if (wrongSound) {
+              wrongSound.currentTime = 0;
+              wrongSound.play().catch(e => console.warn("Âm thanh bị chặn"));
+            }
           }
         });
       });
