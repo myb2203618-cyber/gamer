@@ -186,44 +186,57 @@
       const lan = document.getElementById('lan');
       const chau = document.getElementById('chau');
       const wat = document.getElementById('wat');
-       const wrongSound = document.getElementById('wrongSound');
+      const wrongSound = document.getElementById('wrongSound');
 
-      document.querySelectorAll(".item").forEach(el => {
-        el.addEventListener("click", (e) => {
-          const id = e.currentTarget.id;
+      // helper function để animate cho gọn
+      const moveTo = (el, toPos) => {
+        el.setAttribute('animation__move', {
+          property: 'position',
+          to: toPos,
+          dur: 2000,
+          easing: 'easeOutQuad'
+        });
+      };
+
+      // gắn event trực tiếp vào từng object (ổn định hơn queryAll)
+      [chau, lan, wat].forEach(el => {
+        el.addEventListener('click', () => {
+
+          const id = el.id;
+
+          // STEP 0 → chọn chậu
           if (id === "chau" && step === 0) {
-            chau.setAttribute('animation', {
-              property: 'position',
-              to: '0 0 0',
-              dur: 2000,
-              easing: 'easeOutQuad'
-            });
+            moveTo(chau, '0 0 0');
             step++;
+            return;
           }
-          else if (id === "lan" && step === 1) {
-            lan.setAttribute('animation', {
-              property: 'position',
-              to: '0 0.1 0',
-              dur: 2000,
-              easing: 'easeOutQuad'
-            });
+
+          // STEP 1 → chọn hoa
+          if (id === "lan" && step === 1) {
+            moveTo(lan, '0 0.1 0');
             step++;
+            return;
           }
-          else if (id === "wat" && step === 2) {
-            wat.setAttribute('animation', {
-              property: 'position',
-              to: '0 0.2 0',
-              dur: 2000,
-              easing: 'easeOutQuad'
-            });
+
+          // STEP 2 → tưới nước
+          if (id === "wat" && step === 2) {
+            moveTo(wat, '0 0.2 0');
+
             wat.setAttribute('visible', false);
+
+            // bật animation của model hoa
             lan.setAttribute('animation-mixer', {
               clip: '*',
               loop: 'once',
               clampWhenFinished: true
             });
+
             step++;
-          } else {
+            return;
+          }
+
+          // click sai → phát âm thanh
+          if (wrongSound) {
             wrongSound.currentTime = 0;
             wrongSound.play();
           }
@@ -480,11 +493,13 @@
 
       </a-entity>
       <a-entity id="plant" visible="true" plants>
-        <a-gltf-modelclass="item" id="lan" src="#hoa" position=" -0.2 0.8 0" scale="0.2 0.2 0.2"
+        <a-gltf-model class="clickable item" id="lan" src="#hoa" position=" -0.2 0.6 0" scale="0.2 0.2 0.2"
           animation-mixer="clip: *; loop: once; clampWhenFinished: true; enabled: false"></a-gltf-model>
-        <a-gltf-model class="item" id="chau" src="#chau" position=" 0 0.8 0" scale="0.2 0.2 0.2"></a-gltf-model>
-        <a-gltf-model class="item" id="wat" src="#wat" position=" 0.2 0.8 0" scale="0.2 0.2 0.2"></a-gltf-model>
-        
+        <a-gltf-model class="clickable item" id="chau" src="#chau" position=" 0 0.6 0"
+          scale="0.2 0.2 0.2"></a-gltf-model>
+        <a-gltf-model class="clickable item" id="wat" src="#wat" position=" 0.2 0.6 0"
+          scale="0.2 0.2 0.2"></a-gltf-model>
+
       </a-entity>
       <!-- light -->
       <a-entity id="underwater-light" light="type: spot; color: #00e5ff; intensity: 0; penumbra: 0.5; angle: 30"
