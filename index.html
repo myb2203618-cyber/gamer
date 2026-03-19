@@ -480,10 +480,11 @@
 
       </a-entity>
       <a-entity id="plant" visible="true" plants>
-        <a-entity class="item" id="lan" src="#hoa" position=" -0.2 0 0" scale="0.2 0.2 0.2"
-          animation-mixer="clip: *; loop: once; clampWhenFinished: true; enabled: false"></a-entity>
-        <a-entity class="item" id="chau" src="#chau" position=" 0 0 0" scale="0.2 0.2 0.2"></a-entity>
-        <a-entity class="item" id="wat" src="#wat" position=" 0.2 0 0" scale="0.2 0.2 0.2"></a-entity>
+        <a-gltf-modelclass="item" id="lan" src="#hoa" position=" -0.2 0.8 0" scale="0.2 0.2 0.2"
+          animation-mixer="clip: *; loop: once; clampWhenFinished: true; enabled: false"></a-gltf-model>
+        <a-gltf-model class="item" id="chau" src="#chau" position=" 0 0.8 0" scale="0.2 0.2 0.2"></a-gltf-model>
+        <a-gltf-model class="item" id="wat" src="#wat" position=" 0.2 0.8 0" scale="0.2 0.2 0.2"></a-gltf-model>
+        
       </a-entity>
       <!-- light -->
       <a-entity id="underwater-light" light="type: spot; color: #00e5ff; intensity: 0; penumbra: 0.5; angle: 30"
