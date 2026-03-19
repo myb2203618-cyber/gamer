@@ -198,9 +198,8 @@
         });
       };
 
-      // gắn event trực tiếp vào từng object (ổn định hơn queryAll)
-      [chau, lan, wat].forEach(el => {
-        el.addEventListener('click', () => {
+      document.querySelectorAll(".item").forEach(el => {
+        el.addEventListener("click", () => {
 
           const id = el.id;
 
@@ -493,12 +492,12 @@
 
       </a-entity>
       <a-entity id="plant" visible="true" plants>
-        <a-gltf-model class="clickable item" id="lan" src="#hoa" position=" -0.5 0.6 0" scale="0.2 0.2 0.2"
+        <a-gltf-model class="clickable item" id="lan" src="#hoa" position=" -0.5 0.6 0" scale="0.1 0.1 0.1"
           animation-mixer="clip: *; loop: once; clampWhenFinished: true; timeScale: 0"></a-gltf-model>
         <a-gltf-model class="clickable item" id="chau" src="#chau" position=" 0 0.6 0"
           scale="0.2 0.2 0.2"></a-gltf-model>
         <a-gltf-model class="clickable item" id="wat" src="#wat" position=" 0.5 0.6 0"
-          scale="0.2 0.2 0.2"></a-gltf-model>
+          scale="0.1 0.1 0.1"></a-gltf-model>
 
       </a-entity>
       <!-- light -->
