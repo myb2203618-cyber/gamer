@@ -184,14 +184,16 @@
       let step = 0;
       let animationPlayed = false;
 
-      const lan = document.getElementById('lan');
-      const chau = document.getElementById('chau');
-      const wat = document.getElementById('wat');
+      const ln = document.getElementById('ln');
+      const ch = document.getElementById('ch');
+      const wt = document.getElementById('wt');
+      const huong = document.getElementById('huong');
 
-      const sound = document.getElementById('doneSound'); // <a-sound id="doneSound">
-
-      // helper move
+      // Helper function để di chuyển
       const moveTo = (el, pos) => {
+        // Xóa animation cũ nếu có để tránh xung đột
+        el.removeAttribute('animation');
+        // Thiết lập animation mới
         el.setAttribute('animation', {
           property: 'position',
           to: pos,
@@ -200,68 +202,53 @@
         });
       };
 
-      // CLICK CHẬU
-      chau.addEventListener('click', () => {
+      // 1. CLICK CHẬU
+      ch.addEventListener('click', () => {
         if (step !== 0) return;
+        moveTo(ch, '0 0 0');
         step = 1;
-
-        moveTo(chau, '0 0 0');
-        console.log('Step 1: Đặt chậu');
       });
 
-      // CLICK LAN
-      lan.addEventListener('click', () => {
-        // bước 2: di chuyển lan
+      // 2. CLICK LAN
+      ln.addEventListener('click', () => {
         if (step === 1) {
+          moveTo(ln, '0 0.1 0');
           step = 2;
-          moveTo(lan, '0 0.1 0');
-          console.log('Step 2: Đặt lan');
           return;
         }
 
-        // sau khi hoàn thành animation → cho click để chuyển scene
+        // Sau khi tưới nước xong (animationPlayed = true), click lan để chuyển cảnh
         if (animationPlayed) {
           const assembly = document.getElementById('assembly');
           const plant = document.getElementById('plant');
 
-          plant.setAttribute('visible', false);
-          assembly.setAttribute('visible', true);
-
-          console.log('Chuyển sang assembly');
+          if (plant && assembly) {
+            plant.setAttribute('visible', false);
+            assembly.setAttribute('visible', true);
+          }
         }
       });
 
-      // CLICK WAT (nước)
-      wat.addEventListener('click', () => {
+      // 3. CLICK NƯỚC (WAT)
+      wt.addEventListener('click', () => {
         if (step !== 2) return;
         step = 3;
+        moveTo(wt, '0 0.2 0');
 
-        moveTo(wat, '0 0.2 0');
-        console.log('Step 3: Tưới nước');
-
-        // chạy animation lan
-        lan.setAttribute('animation-mixer', {
+        // Chạy animation của model Lan (phát triển/nở hoa)
+        ln.setAttribute('animation-mixer', {
           clip: '*',
           loop: 'once',
-          clampWhenFinished: true,
-          timeScale: 1
+          clampWhenFinished: true
         });
 
-        // lắng nghe animation kết thúc
-        an.addEventListener('animation-finished', () => {
-          console.log('Animation xong');
-
+        // LẮNG NGHE SỰ KIỆN: Đổi 'an' thành 'lan'
+        ln.addEventListener('animation-finished', () => {
           animationPlayed = true;
 
-          const huong = document.getElementById('huong');
-
           if (huong) {
-            huong.currentTime = 0;
-            huong.play().catch(err => {
-              console.log('Audio bị chặn autoplay:', err);
-            });
+            huong.play().catch(err => console.log('Audio error:', err));
           }
-
         }, { once: true });
       });
     }
@@ -512,13 +499,13 @@
 
       </a-entity>
       <a-entity id="plant" visible="true" plants>
-        <a-gltf-model class="clickable item" id="lan" src="#hoa" position=" -0.5 0.6 0" scale="0.1 0.1 0.1"
-          animation-mixer="clip: *; loop: once; clampWhenFinished: true; timeScale: 0"></a-gltf-model>
-        <a-gltf-model class="clickable item" id="chau" src="#chau" position=" 0 0.6 0"
-          scale="0.2 0.2 0.2"></a-gltf-model>
-        <a-gltf-model class="clickable item" id="wat" src="#wat" position=" 0.5 0.6 0"
-          scale="0.1 0.1 0.1"></a-gltf-model>
-
+        <a-entity class="clickable" id="ch" gltf-model="#chau" position=" 0 0.6 0" scale="0.2 0.2 0.2">
+        </a-entity>
+        <a-entity class="clickable" id="ln" gltf-model="#hoa" position=" -0.5 0.6 0" scale="0.1 0.1 0.1"
+          animation-mixer="clip: *; loop: once; clampWhenFinished: true; timeScale: 0">
+        </a-entity>
+        <a-entity class="clickable" id="wt" gltf-model="#wat" position=" 0.5 0.6 0" scale="0.1 0.1 0.1">
+        </a-entity>
       </a-entity>
       <!-- light -->
       <a-entity id="underwater-light" light="type: spot; color: #00e5ff; intensity: 0; penumbra: 0.5; angle: 30"
