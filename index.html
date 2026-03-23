@@ -205,14 +205,14 @@
       // 1. CLICK CHẬU
       ch.addEventListener('click', () => {
         if (step !== 0) return;
-        moveTo(ch, '0 0 0');
+        moveTo(ch, '0 -0.3 0');
         step = 1;
       });
 
       // 2. CLICK LAN
       ln.addEventListener('click', () => {
         if (step === 1) {
-          moveTo(ln, '0 0.1 0');
+          moveTo(ln, '0 -0.2 0');
           step = 2;
           return;
         }
@@ -233,8 +233,8 @@
       wt.addEventListener('click', () => {
         if (step !== 2) return;
         step = 3;
-        moveTo(wt, '0 0.2 0');
-
+        moveTo(wt, '0 0 0');
+        wt.setAttribute('visible',false);
         // Chạy animation của model Lan (phát triển/nở hoa)
         ln.setAttribute('animation-mixer', {
           clip: '*',
