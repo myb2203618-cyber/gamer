@@ -205,7 +205,7 @@
           // Ngăn chặn click xuyên thấu sang các layer khác
           if (evt.detail.cursorEl) evt.stopPropagation();
 
-          const id = el.id;
+          const id = evt.currentTarget.id;
 
           // STEP 0: Di chuyển chậu vào tâm (0 0 0)
           if (id === "chau" && step === 0) {
@@ -339,29 +339,24 @@
       this.el.addEventListener('componentchanged', (evt) => {
         if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
           this.generateReward();
-        }
-      });
+        }});
     },
     generateReward: function () {
-      // 1. Tính toán ngẫu nhiên
+      // Tính toán ngẫu nhiên
       const randomNum = Math.floor(Math.random() * 100) + 1;
       let selectedGift = "";
       if (randomNum <= 10) selectedGift = "#q4";
       else if (randomNum <= 30) selectedGift = "#q3";
       else if (randomNum <= 60) selectedGift = "#q2";
       else selectedGift = "#q1";
-
       const giftDisplay = document.querySelector("#gift-harec");
-
       if (giftDisplay) {
-        // 2. Cập nhật model mới
+        // Cập nhật model mới
         giftDisplay.setAttribute('src', selectedGift);
-
-        // QUAN TRỌNG: Đợi model tải xong dữ liệu mới gán animation
+        //Đợi model tải xong dữ liệu mới gán animation
         giftDisplay.addEventListener('model-loaded', () => {
           // Xóa mixer cũ để tránh xung đột
           giftDisplay.removeAttribute('animation-mixer');
-
           // Gán mixer mới với tên clip 
           giftDisplay.setAttribute('animation-mixer', {
             clip: '*',
@@ -529,7 +524,7 @@
 
         <a-entity id="sea-life" visible="false" position="0 -5 0">
           <a-entity id="ray-pivot">
-            <a-gltf-model src="#ray" position="0 0 0" rotation="0 90 0" scale="0.4 0.4 0.4"
+            <a-gltf-model src="#ray" position="0 0 0" rotation="0 90 0" scale="0.2 0.2 0.2"
               animation-mixer="clip:*; loop:repeat">
             </a-gltf-model>
           </a-entity>
