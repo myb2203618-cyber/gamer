@@ -182,75 +182,87 @@
   AFRAME.registerComponent('plants', {
     init: function () {
       let step = 0;
+      let animationPlayed = false;
+
       const lan = document.getElementById('lan');
       const chau = document.getElementById('chau');
       const wat = document.getElementById('wat');
-      // Sửa lại ID cho đúng với id="wrong" trong phần assets của bạn
-      const wrongSound = document.getElementById('wrong');
 
-      const moveTo = (el, toPos) => {
-        el.setAttribute('animation__move', {
+      const sound = document.getElementById('doneSound'); // <a-sound id="doneSound">
+
+      // helper move
+      const moveTo = (el, pos) => {
+        el.setAttribute('animation', {
           property: 'position',
-          to: toPos,
-          dur: 1500,
+          to: pos,
+          dur: 1000,
           easing: 'easeOutQuad'
         });
       };
 
-      document.querySelectorAll(".item").forEach(el => {
-        el.addEventListener("click", (evt) => {
-          // KIỂM TRA QUAN TRỌNG: Chỉ cho click khi màn hình plant đang hiện
-          if (this.el.getAttribute('visible') === false) return;
+      // CLICK CHẬU
+      chau.addEventListener('click', () => {
+        if (step !== 0) return;
+        step = 1;
 
-          // Ngăn chặn click xuyên thấu sang các layer khác
-          if (evt.detail.cursorEl) evt.stopPropagation();
+        moveTo(chau, '0 0 0');
+        console.log('Step 1: Đặt chậu');
+      });
 
-          const id = evt.currentTarget.id;
+      // CLICK LAN
+      lan.addEventListener('click', () => {
+        // bước 2: di chuyển lan
+        if (step === 1) {
+          step = 2;
+          moveTo(lan, '0 0.1 0');
+          console.log('Step 2: Đặt lan');
+          return;
+        }
 
-          // STEP 0: Di chuyển chậu vào tâm (0 0 0)
-          if (id === "chau" && step === 0) {
-            moveTo(chau, '0 0 0');
-            step++;
-          }
-          // STEP 1: Đưa hoa vào chậu (0 0.1 0)
-          else if (id === "lan" && step === 1) {
-            moveTo(lan, '0 0.1 0');
-            step++;
-          }
-          // STEP 2: Tưới nước và kích hoạt hoa nở
-          else if (id === "wat" && step === 2) {
-            moveTo(wat, '0.2 0.2 0'); // Đưa bình nước lại gần
+        // sau khi hoàn thành animation → cho click để chuyển scene
+        if (animationPlayed) {
+          const assembly = document.getElementById('assembly');
+          const plant = document.getElementById('plant');
 
-            setTimeout(() => {
-              // Ẩn bình nước
-              wat.setAttribute('visible', false);
+          plant.setAttribute('visible', false);
+          assembly.setAttribute('visible', true);
 
-              // Kích hoạt animation nở hoa (Quan trọng: phải có enabled: true)
-              lan.setAttribute('animation-mixer', {
-                clip: '*',
-                loop: 'once',
-                enabled: true,
-                clampWhenFinished: true
-              });
+          console.log('Chuyển sang assembly');
+        }
+      });
 
-              // TỰ ĐỘNG CHUYỂN CẢNH: Sau khi trồng xong 3 giây, hiện màn hình Info
-              setTimeout(() => {
-                this.el.setAttribute('visible', false);
-                const assemScene = document.querySelector('#assembly');
-                if (assemScene) assemScene.setAttribute('visible', true);
-              }, 3000);
+      // CLICK WAT (nước)
+      wat.addEventListener('click', () => {
+        if (step !== 2) return;
+        step = 3;
 
-            }, 1500);
-            step++;
-          }
-          // Nếu click sai thứ tự
-          else {
-            if (wrongSound) {
-              wrongSound.currentTime = 0;
-              wrongSound.play().catch(e => console.warn("Âm thanh bị chặn"));
-            }
-          }
+        moveTo(wat, '0 0.2 0');
+        console.log('Step 3: Tưới nước');
+
+        // chạy animation lan
+        lan.setAttribute('animation-mixer', {
+          clip: '*',
+          loop: 'once',
+          clampWhenFinished: true,
+          timeScale: 1
         });
+
+        // lắng nghe animation kết thúc
+        an.addEventListener('animation-finished', () => {
+          console.log('Animation xong');
+
+          animationPlayed = true;
+
+          const huong = document.getElementById('huong');
+
+          if (huong) {
+            huong.currentTime = 0;
+            huong.play().catch(err => {
+              console.log('Audio bị chặn autoplay:', err);
+            });
+          }
+
+        }, { once: true });
       });
     }
   });
@@ -339,7 +351,8 @@
       this.el.addEventListener('componentchanged', (evt) => {
         if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
           this.generateReward();
-        }});
+        }
+      });
     },
     generateReward: function () {
       // Tính toán ngẫu nhiên
@@ -430,6 +443,7 @@
       <audio id="sc3" src="asset/audio/sc3.mp3"></audio>
       <audio id="sc4" src="asset/audio/sc4.mp3"></audio>
       <audio id="ssp" src="asset/audio/sptm.MP3"></audio>
+      <audio id="huong" src="asset/audio/huong.mp3"></audio>
 
       <img id="c1" src="asset/ans/c1.png">
       <img id="c2" src="asset/ans/c2.png">
