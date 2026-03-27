@@ -11,65 +11,41 @@
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 </head>
 <script>
-  function handleInfoInput() {
-    if (infoEntity.getAttribute('visible') === false) return;
-    // 1. Nhập tên
-    const nameInput = prompt("Vui lòng nhập tên của bạn:");
-    if (!nameInput || nameInput.trim() === "") {
-      alert("Tên không được để trống!");
-      return;
-    }
-
-    // 2. Nhập SĐT
-    const phoneInput = prompt("Vui lòng nhập số điện thoại (10 số):");
-
-    // Kiểm tra điều kiện
-    if (phoneInput && phoneInput.length === 10) {
-      userName = nameInput;
-      isPhoneSubmitted = true;
-
-      // Cập nhật text hiển thị lên không gian 3D
-      nameDisplay.setAttribute('text', 'value', 'Chao: ' + userName.toUpperCase());
-      phoneDisplay.setAttribute('text', 'value', 'SDT: ' + phoneInput);
-      phoneDisplay.setAttribute('material', 'color', '#28a745');
-
-      // Chạy Animation & Sound Logo
-      logo.setAttribute('animation-mixer', {
-        clip: '*',
-        enabled: true,
-        loop: 'repeat'
-      });
-      // Dừng nếu đang phát dở
-      // Thay vì logo.components.sound.playSound()
-      const s1Audio = document.getElementById('s1');
-      if (s1Audio) {
-        s1Audio.currentTime = 0;
-        s1Audio.play();
-      }
-
-      console.log("Đã nhận thông tin:", userName, phoneInput);
-    } else {
-      alert("Số điện thoại không hợp lệ!");
-    }
-  }
   ///////////////effects
   AFRAME.registerComponent('scene-switch', {
-    schema: {
-      target: { type: 'selector' }
-    },
-    init: function () {
-      this.el.addEventListener('click', () => {
-        if (this.el.getAttribute('visible') === false) return;
-        // Tìm scene cha hiện tại đang chứa nút được bấm
-        const currentScene = this.el.closest('a-entity[id]');
-        if (currentScene) currentScene.setAttribute('visible', false);
+  schema: {
+    target: { type: 'selector' }
+  },
+  init: function () {
+    this.el.addEventListener('click', () => {
+      // Nếu chính nút này đang ẩn thì không làm gì cả
+      if (this.el.getAttribute('visible') === false) return;
 
-        // Hiện scene mục tiêu
-        if (this.data.target) this.data.target.setAttribute('visible', true);
-      });
-    }
-  });
+      const currentScene = this.el.closest('a-entity[id]');
+      
+      // 1. Ẩn scene hiện tại và vô hiệu hóa click
+      if (currentScene) {
+        currentScene.setAttribute('visible', false);
+        // Tìm tất cả các phần tử có class clickable bên trong và đổi tên class
+        const clickables = currentScene.querySelectorAll('.clickable');
+        clickables.forEach(el => {
+          el.classList.remove('clickable');
+          el.classList.add('disabled-clickable'); // Lưu tạm để bật lại nếu cần
+        });
+      }
 
+      // 2. Hiện scene mục tiêu và kích hoạt click
+      if (this.data.target) {
+        this.data.target.setAttribute('visible', true);
+        const disabledClickables = this.data.target.querySelectorAll('.disabled-clickable');
+        disabledClickables.forEach(el => {
+          el.classList.remove('disabled-clickable');
+          el.classList.add('clickable');
+        });
+      }
+    });
+  }
+});
   AFRAME.registerComponent('link-handler', {
     schema: { url: { type: "string" } },
     init: function () {
@@ -105,6 +81,11 @@
       // LẮNG NGHE SỰ KIỆN: Khi màn hình Quiz hiện lên thực sự
       this.el.addEventListener('componentchanged', (evt) => {
         if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
+          const welAudio = document.getElementById('welsound');
+          if (welAudio) {
+            welAudio.currentTime = 0;
+            welAudio.pause();
+        }
           // Khi Quiz vừa hiện ra, gọi loadQuestion để phát âm thanh câu 1
           this.loadQuestion();
         }
@@ -145,15 +126,15 @@
           if (a) { a.pause(); a.currentTime = 0; }
         });
 
-        // 2. Chuyển cảnh 
+        // 2. Chuyển cảnh
+        const hdplnt = document.getElementById('hdplant');
         this.el.setAttribute('visible', false);
-        const assemblyScene = document.querySelector("#assembly");
-        if (assemblyScene) {
-          assemblyScene.setAttribute('visible', true);
-          // Kích hoạt animation cho sản phẩm ở màn assembly
-          const mainProduct = document.querySelector("#main-product");
-          if (mainProduct) {
-            mainProduct.setAttribute('animation-mixer', "enabled: true");
+        const plantScene = document.querySelector("#plant");
+        if (plantScene) {
+          plantScene.setAttribute('visible', true);
+          if (hdplnt) {
+            hdplnt.currentTime = 0;
+            hdplnt.play();
           }
         }
       }
@@ -175,10 +156,34 @@
       } else {
         wrongSound.currentTime = 0;
         wrongSound.play();
+        score--;
       }
     }
   });
   /////////////////plant
+  AFRAME.registerComponent('laven', {
+    init: function () {
+      // Lắng nghe sự kiện visible
+      this.el.addEventListener('componentchanged', (evt) => {
+        if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
+          this.laven();
+        }
+      });
+    },
+    laven: function () {
+      // Tính toán 
+      let lvndr = "";
+      if (score >= 8) lvndr = "#laall";
+      else if (score < 8 && score >= 6) lvndr = "#la5";
+      else if (score < 6 && score >= 4) lvndr = "#la3";
+      else lvndr = "#la1";
+      const lvndrDisplay = document.getElementById('ln');
+      if (lvndrDisplay) {
+        // Cập nhật model mới
+        lvndrDisplay.setAttribute('src', lvndr);
+      }
+    }
+  });
   AFRAME.registerComponent('plants', {
     init: function () {
       let step = 0;
@@ -188,6 +193,11 @@
       const ch = document.getElementById('ch');
       const wt = document.getElementById('wt');
       const huong = document.getElementById('huong');
+      const hit = document.getElementById('hit');
+      const nut = document.getElementById('nut');
+      const nuoc = document.getElementById('nuoc');
+      const grow = document.getElementById('grow');
+      const ssp = document.getElementById('ssp')
 
       // Helper function để di chuyển
       const moveTo = (el, pos) => {
@@ -205,18 +215,30 @@
       // 1. CLICK CHẬU
       ch.addEventListener('click', () => {
         if (step !== 0) return;
-        moveTo(ch, '0 -0.3 0');
+        const hdplnt = document.getElementById('hdplant');
+        if (hdplnt) {
+          hdplnt.pause();
+          hdplnt.currentTime = 0;
+        }
+        moveTo(ch, '0 -0.6 0');
+        if (hit) {
+          hit.currentTime = 0;
+          hit.play();
+        }
         step = 1;
       });
 
       // 2. CLICK LAN
       ln.addEventListener('click', () => {
         if (step === 1) {
-          moveTo(ln, '0 -0.2 0');
+          moveTo(ln, '0 -0.5 0');
+          if (nut) {
+            nut.currentTime = 0;
+            nut.play();
+          }
           step = 2;
           return;
         }
-
         // Sau khi tưới nước xong (animationPlayed = true), click lan để chuyển cảnh
         if (animationPlayed) {
           const assembly = document.getElementById('assembly');
@@ -225,6 +247,28 @@
           if (plant && assembly) {
             plant.setAttribute('visible', false);
             assembly.setAttribute('visible', true);
+
+            const mainProduct = document.querySelector("#main-product");
+            if (mainProduct) {
+              mainProduct.setAttribute('animation',
+                {
+                  property: 'scale',
+                  from: '0.1 0.1 0.1',
+                  to: '0.15 0.15 0.15',
+                  dur: '3000'
+                }
+              );
+              mainProduct.setAttribute('animation-mixer', {
+                clip: '*',
+                loop: 'once',
+                clampWhenFinished: true,
+                timeScale: 1
+              });
+            }
+            if (ssp) {
+              ssp.currentTime = 0;
+              ssp.play().catch(() => { });
+            }
           }
         }
       });
@@ -234,20 +278,28 @@
         if (step !== 2) return;
         step = 3;
         moveTo(wt, '0 0 0');
-        wt.setAttribute('visible',false);
-        // Chạy animation của model Lan (phát triển/nở hoa)
+        if (nuoc) {
+          nuoc.currentTime = 0;
+          nuoc.play();
+        }
+        setTimeout(() => wt.setAttribute('visible', false), 1000);
+        // chạy animation
         ln.setAttribute('animation-mixer', {
           clip: '*',
           loop: 'once',
-          clampWhenFinished: true
+          clampWhenFinished: true,
+          timeScale: 1
         });
-
-        // LẮNG NGHE SỰ KIỆN: Đổi 'an' thành 'lan'
+        if (grow) {
+          grow.currentTime = 0;
+          grow.play();
+        }
         ln.addEventListener('animation-finished', () => {
           animationPlayed = true;
 
           if (huong) {
-            huong.play().catch(err => console.log('Audio error:', err));
+            huong.currentTime = 0;
+            huong.play();
           }
         }, { once: true });
       });
@@ -255,82 +307,78 @@
   });
   /////assembly
   // Hàm startDivingEffect cần được đặt ngoài hoặc trong một nơi mà HTML gọi được
+
   AFRAME.registerComponent('diving-effect', {
-    init: function () {
-      const product = this.el;
-      const bubbles = document.getElementById('#bubbles');
-      const bubbleSpheres = document.getElementById('#bubbles a-sphere');
-      const seaLife = document.querySelector('#sea-life');
-      const light = document.querySelector('#underwater-light');
-      const rewardButton = document.querySelector('#btn-get-reward');
+  init: function () {
+    const product = this.el;
+    // Sử dụng querySelector để tìm đúng các phần tử
+    const bubbles = document.querySelector('#bubbles');
+    const seaLife = document.querySelector('#sea-life');
+    const light = document.querySelector('#underwater-light');
+    const rewardButton = document.querySelector('#btn-get-reward');
 
-      // Sự kiện xảy ra khi animation-mixer của sản phẩm sp chạy xong clip
-      product.addEventListener('animation-finished', () => {
-        // console.log("Sản phẩm đã xuất hiện xong, bắt đầu hiệu ứng lặn...");
-
-        // 1. Hiện bong bóng và kích hoạt vọt lên
-        if (bubbles) {
-          bubbles.setAttribute('visible', true);
-          bubbleSpheres.forEach((b) => {
-            const currentPos = b.getAttribute('position');
-            b.setAttribute('animation', {
-              property: 'position',
-              to: `${currentPos.x} 5 ${currentPos.z}`,
-              dur: 800,
-              loop: true,
-              easing: 'easeInQuad'
-            });
-          });
-        }
-        // 2. Cho cá bơi và bật đèn 
-        setTimeout(() => {
-          if (seaLife) {
-            seaLife.setAttribute('visible', true);
-            seaLife.setAttribute('animation', {
-              property: 'position',
-              from: '0 -5 0',
-              to: '0 0 0', // Đưa về vị trí trung tâm để bơi
-              dur: 2000,
-              easing: 'easeOutQuad'
-            });
-          }
-
-          if (light) {
-            light.setAttribute('animation__brighten', {
-              property: 'light.intensity',
-              to: 2.5,
-              dur: 1500
-            });
-          }
-        }, 300);
-
-        // 3. Hiện nút nhận quà sau khi mọi thứ ổn định 
-        setTimeout(() => {
-          if (rewardButton) {
-            rewardButton.setAttribute('visible', true);
-            rewardButton.emit('show-button');
-            rewardButton.setAttribute('animation__pulse', {
-              property: 'scale',
-              from: '0.1 0.1 0.1',
-              to: '0.12 0.12 0.12',
-              dur: 800,
-              loop: true,
-              dir: 'alternate'
-            });
-          }
-        }, 4000);
+    product.addEventListener('animation-finished', () => {
+      // 1. Thu nhỏ sản phẩm
+      product.setAttribute('animation', {
+        property: 'scale',
+        from: '0.15 0.15 0.15',
+        to: '0.1 0.1 0.1',
+        dur: 3000,
+        easing: 'easeOutQuad'
       });
-      // Mồi âm thanh phần thưởng khi người dùng click vào nút nhận quà
-      if (rewardButton) {
-        rewardButton.addEventListener('click', () => {
-          const rewardSound = document.querySelector("#send");
-          if (rewardSound) {
-            rewardSound.play().then(() => rewardSound.pause());
-          }
+
+      // 2. Xử lý bong bóng
+      if (bubbles) {
+        bubbles.setAttribute('visible', true);
+        // Tìm tất cả sphere bên trong bubbles
+        const spheres = bubbles.querySelectorAll('a-sphere');
+        spheres.forEach((b) => {
+          const startPos = b.getAttribute('position');
+          b.setAttribute('animation', {
+            property: 'position',
+            to: `${startPos.x} ${startPos.y + 2} ${startPos.z}`,
+            dur: 2000 + Math.random() * 1000,
+            loop: true,
+            easing: 'linear'
+          });
         });
       }
+
+      // 3. Hiện cá và san hô (Sea Life)
+      setTimeout(() => {
+        if (seaLife) {
+          seaLife.setAttribute('visible', true);
+          console.log("Sea life is now visible"); // Debug kiểm tra
+        }
+        if (light) {
+          light.setAttribute('animation__brighten', {
+            property: 'light.intensity',
+            to: 2.5,
+            dur: 1500
+          });
+        }
+      }, 500);
+
+      // 4. Hiện nút nhận quà
+      setTimeout(() => {
+        if (rewardButton) {
+          rewardButton.setAttribute('visible', true);
+        }
+      }, 1000);
+    });
+
+    // Sự kiện click nút nhận quà
+    if (rewardButton) {
+      rewardButton.addEventListener('click', () => {
+        const rewardSd = document.querySelector("#send");
+        if (rewardSd) {
+          rewardSd.currentTime = 0;
+          rewardSd.play().catch(e => console.log("Audio play failed", e));
+        }
+      });
     }
-  });
+  }
+});
   ////random-qua///////////////////////////////////////
   AFRAME.registerComponent('gift', {
     init: function () {
@@ -365,22 +413,8 @@
           });
         }, { once: true });
       }
-      // 3. Xử lý âm thanh
-      this.playRewardSound();
-      console.log("Phần quà nhận được:", selectedGift);
     },
-    playRewardSound: function () {
-      const sound = document.querySelector("#send");
-      if (sound) {
-        sound.pause(); // Dừng nếu đang chạy
-        sound.currentTime = 0; // Reset về đầu
 
-        // Sử dụng .play() của HTML5 Audio để có độ trễ thấp hơn
-        sound.play().catch(err => {
-          console.warn("Âm thanh bị trình duyệt chặn hoặc chưa tải xong:", err);
-        });
-      }
-    }
   });
 </script>
 <title>AR Quiz 5 Scenes</title>
@@ -412,12 +446,18 @@
       <a-asset-item id="q3" src="asset/gift/g40.glb"></a-asset-item>
       <a-asset-item id="q4" src="asset/gift/gs.glb"></a-asset-item>
 
+      <a-asset-item id="la1" src="asset/laven/laven-1.glb"></a-asset-item>
+      <a-asset-item id="la3" src="asset/laven/laven-3.glb"></a-asset-item>
+      <a-asset-item id="la5" src="asset/laven/laven-5.glb"></a-asset-item>
+      <a-asset-item id="laall" src="asset/laven/laven-full.glb"></a-asset-item>
+
       <a-asset-item id="hoa" src="asset/lavender.glb"></a-asset-item>
       <a-asset-item id="chau" src="asset/chau.glb"></a-asset-item>
       <a-asset-item id="wat" src="asset/wat.glb"></a-asset-item>
 
       <a-asset-item id="ray" src="asset/ray.glb"></a-asset-item>
       <a-asset-item id="la" src="asset/la.glb"></a-asset-item>
+      <video id="vid" src="asset/audio/matara.webm" autoplay loop muted playsinline></video>
 
 
       <audio id="wrong" src="asset/audio/wrong.mp3"></audio>
@@ -431,6 +471,11 @@
       <audio id="sc4" src="asset/audio/sc4.mp3"></audio>
       <audio id="ssp" src="asset/audio/sptm.MP3"></audio>
       <audio id="huong" src="asset/audio/huong.mp3"></audio>
+      <audio id="grow" src="asset/audio/grow.wav"></audio>
+      <audio id="nut" src="asset/audio/nut.wav"></audio>
+      <audio id="hit" src="asset/audio/hit.wav"></audio>
+      <audio id="nuoc" src="asset/audio/nuoc.mp3"></audio>
+      <audio id="hdplant" src="asset/audio/hd_plant.mp3"></audio>
 
       <img id="c1" src="asset/ans/c1.png">
       <img id="c2" src="asset/ans/c2.png">
@@ -446,24 +491,24 @@
 
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <a-entity id="info" visible="false">
-        <a-entity class="clickable" id="logo-entity" gltf-model="#logo" position="0 0.4 0" scale="0.5 0.5 0.5"
+      <a-entity id="info" visible="true">
+        <a-entity class="clickable" id="logo-entity" gltf-model="#logo" position="0 0.5 -0.1" scale="0.6 0.6 0.6"
           sound="src: #s1; autoplay: false; loop: false; volume: 1"
           animation-mixer="clip: *; loop: repeat; clampWhenFinished: true; enabled: false">
         </a-entity>
-        <a-entity class="clickable" id="name-display" text="value: NHAP TEN CUA BAN; align: center; width: 2.5"
-          position="0 0 0">
+        <a-entity class="clickable" id="name-display" geometry="primitive: plane; width: 1 ; height: 0.3"
+          material="color: #333; opacity: 0.8" text="value: NHAP TEN CUA BAN; align: center; width: 2"
+          position="0 -0.2 0">
         </a-entity>
-        <a-entity class="clickable" id="phone-display" geometry="primitive: plane; width: 1.5; height: 0.4"
-          material="color: #333; opacity: 0.8" text="value: NHAP SDT NHAN QUA; align: center; width: 3"
-          position="0 -0.3 0">
+        <a-entity class="clickable" id="phone-display" geometry="primitive: plane; width: 1; height: 0.3"
+          material="color: #333; opacity: 0.8" text="value: NHAP SDT NHAN QUA; align: center; width: 2"
+          position="0 -0.6 0">
         </a-entity>
       </a-entity>
 
       <a-entity id="welcome" visible="false" sound="src: #welsound; autoplay: false; loop: false; volume: 1">
 
-        <a-gltf-model src="#logo" position="-0.25 0.3 0" scale="0.3 0.3 0.3"
-          animation-mixer="clip: *;loop: once; clampWhenFinished: true">
+        <a-video src="#vid" transparent="true" position="-0.25 0.3 0" scale="0.6 0.6 0.6"></a-video>
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.35 0.6 0"
           scale="0.2 0.2 0.2" rotation="0 0 0"></a-gltf-model>
@@ -484,26 +529,25 @@
 
       <a-entity id="quiz" visible="false" quiz-logic>
 
-        <a-plane id="question-board" position="0 0.6 0" width="1.2" height="0.6"
+        <a-plane id="question-board" position="0 0.6 0" width="1.2" height="1.2"
           material="transparent: true; shader: flat">
         </a-plane>
         <a-entity id="question-voice-player" sound="src: ; volume: 1;autoplay: false; loop: false"></a-entity>
-        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.3 0 0" scale="0.2 0.2 0.2"
+        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.3 -0.1 0" scale="0.2 0.2 0.2"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans2" position="0.3 0 0" scale="0.2 0.2 0.2"
+        <a-gltf-model class="clickable quiz-option" src="#ans2" position="0.3 -0.1 0" scale="0.2 0.2 0.2"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans3" position="-0.3 -0.2 0" scale="0.2 0.2 0.2"
+        <a-gltf-model class="clickable quiz-option" src="#ans3" position="-0.3 -0.3 0" scale="0.2 0.2 0.2"
           rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.3 -0.2 0" scale="0.2 0.2 0.2"
+        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.3 -0.3 0" scale="0.2 0.2 0.2"
           rotation="0 0 0"></a-gltf-model>
 
       </a-entity>
-      <a-entity id="plant" visible="true" plants>
-        <a-entity class="clickable" id="ch" gltf-model="#chau" position=" 0 0.6 0" scale="0.2 0.2 0.2">
+      <a-entity id="plant" visible="false" laven plants>
+        <a-entity class="clickable" id="ch" gltf-model="#chau" position=" 0 0.6 0" scale="0.2 0.2 0.2"
+          rotation="20 0 0">
         </a-entity>
-        <a-entity class="clickable" id="ln" gltf-model="#hoa" position=" -0.5 0.6 0" scale="0.1 0.1 0.1"
-          animation-mixer="clip: *; loop: once; clampWhenFinished: true; timeScale: 0">
-        </a-entity>
+        <a-gltf-model class="clickable" id="ln" position=" -0.5 0.6 0" scale="0.1 0.1 0.1"></a-gltf-model>
         <a-entity class="clickable" id="wt" gltf-model="#wat" position=" 0.5 0.6 0" scale="0.1 0.1 0.1">
         </a-entity>
       </a-entity>
@@ -513,37 +557,37 @@
       </a-entity>
 
       <a-entity id="assembly" visible="false">
-        <a-gltf-model id="main-product" src="#sp" diving-effect position="0 0 0" scale="0.2 0.2 0.2" rotation="0 180 0"
-          animation-mixer="clip: *; loop: once; clampWhenFinished: true">
+        <a-gltf-model id="main-product" src="#sp" diving-effect position="0 0 0" scale="0.1 0.1 0.1">
         </a-gltf-model>
 
         <a-entity id="bubbles" visible="false" position="0 0 0">
-          <a-sphere color="white" opacity="0.5" radius="0.05" position="0 0 0"></a-sphere>
-          <a-sphere color="white" opacity="0.4" radius="0.03" position="0.3 0 0"></a-sphere>
-          <a-sphere color="white" opacity="0.3" radius="0.04" position="-0.3 0 0"></a-sphere>
+          <a-sphere color="white" opacity="0.5" radius="0.05" position="0 -0.2 -0.2" color="#00acc1"></a-sphere>
+          <a-sphere color="white" opacity="0.4" radius="0.03" position="0.3 -0.2 0" color="#00acc1"></a-sphere>
+          <a-sphere color="white" opacity="0.3" radius="0.04" position="-0.3 -0.2 0" color="#00acc1"></a-sphere>
+          <a-sphere color="white" opacity="0.2" radius="0.03" position="0.5 -0.2 0" color="#00acc1"></a-sphere>
+          <a-sphere color="white" opacity="0.2" radius="0.03" position="-0.5 -0.2 0" color="#00acc1"></a-sphere>
         </a-entity>
 
-        <a-entity id="sea-life" visible="false" position="0 -5 0">
+        <a-entity id="sea-life" visible="false" position="0 0 0">
           <a-entity id="ray-pivot">
-            <a-gltf-model src="#ray" position="0 0 0" rotation="0 90 0" scale="0.2 0.2 0.2"
+            <a-gltf-model src="#ray" position="0 0.5 0" rotation="0 90 0" scale="0.15 0.15 0.15"
               animation-mixer="clip:*; loop:repeat">
             </a-gltf-model>
           </a-entity>
-          <a-gltf-model src="#la" position="1 0 0" scale="1 1 1"></a-gltf-model>
+          <a-gltf-model src="#la" position="0.6 -0.5 0.3" rotation="30 0 0" scale="0.03 0.03 0.03"></a-gltf-model>
+          <a-gltf-model src="#la" position="-0.8 -0.5 -0.3" rotation="30 0 0" scale="0.02 0.02 0.02"></a-gltf-model>
+          <a-gltf-model src="#la" position="-0.6 -0.2 -0.5" rotation="30 0 0" scale="0.03 0.03 0.03"></a-gltf-model>
         </a-entity>
 
-        <a-gltf-model id="btn-get-reward" src="#gg" class="clickable" visible="false" position="0 -0.5 0.2"
-          scale="0.01 0.01 0.01" scene-switch="target: #reward"
-          animation__fadein="property: scale; to: 0.2 0.2 0.2; dur: 1000; easing: easeOutBack; startEvents: show-button">
+        <a-gltf-model id="btn-get-reward" src="#gg" class="clickable" visible="false" position="0 -0.5 0"
+          scale="0.3 0.3 0.3" scene-switch="target: #reward">
         </a-gltf-model>
       </a-entity>
 
-      <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false">
-
-        <a-gltf-model id="gift-harec" position="0.3 0 0" scale="0.3 0.3 0.3" rotation="0 0 0">
+      <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false; volume:0.5">
+        <a-gltf-model id="gift-harec" position="0 0 0" scale="0.3 0.3 0.3" rotation="0 0 0">
         </a-gltf-model>
-
-        <a-gltf-model src="#link" position="0.4 -0.5 0" scale="0.2 0.2 0.2" rotation="0 0 0" class="clickable"
+        <a-gltf-model src="#link" position="0 -0.8 0" scale="0.3 0.3 0.3" rotation="0 0 0" class="clickable"
           link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
       </a-entity>
 
@@ -556,25 +600,60 @@
     const phoneDisplay = document.querySelector('#phone-display');
     const nameDisplay = document.querySelector('#name-display');
 
+    let isHandlingInput = false;//lock
     let isPhoneSubmitted = false;
     let userName = ""; // Biến lưu tên người dùng
+
+    function handleInfoInput() {
+      if (infoEntity.getAttribute('visible') === false) return;
+      // 1. Nhập tên
+      const nameInput = prompt("Vui lòng nhập tên của bạn:");
+      if (!nameInput || nameInput.trim() === "") {
+        alert("Tên không được để trống!");
+        return;
+      }
+      // 2. Nhập SĐT
+      const phoneInput = prompt("Vui lòng nhập số điện thoại (10 số):");
+
+      // Kiểm tra điều kiện
+      if (phoneInput && phoneInput.length === 10) {
+        userName = nameInput;
+        isPhoneSubmitted = true;
+
+        // Cập nhật text hiển thị lên không gian 3D
+        nameDisplay.setAttribute('text', 'value', 'Chao: ' + userName.toUpperCase());
+        phoneDisplay.setAttribute('text', 'value', 'SDT: ' + phoneInput);
+        phoneDisplay.setAttribute('material', 'color', '#28a745');
+        // Chạy Animation & Sound Logo
+        logo.setAttribute('animation-mixer', {
+          clip: '*',
+          enabled: true,
+          loop: 'repeat'
+        });
+        // Thay vì logo.components.sound.playSound()
+        const s1Audio = document.getElementById('s1');
+        if (s1Audio) {
+          s1Audio.currentTime = 0;
+          s1Audio.play();
+        }
+        console.log("Đã nhận thông tin:", userName, phoneInput);
+      } else {
+        alert("Số điện thoại không hợp lệ!");
+      }
+    }
+
     // Sự kiện click vào vùng nhập liệu 
+    nameDisplay.addEventListener('click', handleInfoInput);
     phoneDisplay.addEventListener('click', handleInfoInput);
     //phoneDisplay.onClick=function(){  handleInfoInput();};
+
     // Sự kiện khi click vào logo để qua màn Welcome
     logo.addEventListener('click', function () {
       if (isPhoneSubmitted) {
         infoEntity.setAttribute('visible', 'false');
-
+        infoEntity.classList.remove('clickable');
         welcomeEntity.setAttribute('visible', 'true');
-
-        // // Cập nhật lời chào cá nhân hóa ở màn hình Welcome
-        // const welcomeText = welcomeEntity.querySelector('[text]');
-        // if (welcomeText) {
-        //   welcomeText.setAttribute('text', 'value', 'CHAO MUNG ' + userName.toUpperCase() + ' DEN MANTA AR');
-        // }
-
-        // Phát âm thanh giới thiệu
+        const vid = document.getElementById('vid');
         const welcomeVoice = document.querySelector('#welcome');
         if (welcomeVoice && welcomeVoice.components.sound) {
           welcomeVoice.components.sound.stopSound();
@@ -583,12 +662,28 @@
           if (welAudio) {
             welAudio.currentTime = 0;
             welAudio.play();
+            vid.currentTime = 0;
+            vid.play();
+            if (vid && welAudio) {
+              //  video hết kiểm tra audio
+              vid.addEventListener('ended', () => {
+                if (!welAudio.ended) {
+                  vid.currentTime = 0;
+                  vid.play();
+                }
+              });
+              welAudio.addEventListener('ended', () => {
+                vid.pause();
+                vid.currentTime = 1.3;
+              });
+            }
           }
         }
       } else {
         alert("Vui lòng nhập đầy đủ thông tin trước!");
       }
     });
+    let score = 9;
   </script>
 </body>
 
