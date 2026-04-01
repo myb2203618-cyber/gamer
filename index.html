@@ -9,43 +9,135 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <link rel="icon" type="image/png" sizes="16x16" href="asset/ans/logo.png">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
 </head>
 <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAqjwgrZLbLsrySqqMqsRo1I3JldPxTX2w",
+    authDomain: "csdl-harec.firebaseapp.com",
+    projectId: "csdl-harec",
+    storageBucket: "csdl-harec.firebasestorage.app",
+    messagingSenderId: "603192476183",
+    appId: "1:603192476183:web:70e7f0b1940513ff7ed252"
+  };
+  // khởi tạo
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  function saveUserData(name, phone, score, gift) {
+    db.collection("leaderboard").add({
+      name: name,
+      phone: phone,
+      score: score,
+      gift: gift,
+      createdAt: new Date()
+    })
+      .then(() => console.log("Lưu thành công"))
+      .catch(err => console.error(err));
+  }
   ///////////////effects
   AFRAME.registerComponent('scene-switch', {
-  schema: {
-    target: { type: 'selector' }
-  },
-  init: function () {
-    this.el.addEventListener('click', () => {
-      // Nếu chính nút này đang ẩn thì không làm gì cả
-      if (this.el.getAttribute('visible') === false) return;
+    schema: {
+      target: { type: 'selector' }
+    },
+    init: function () {
+      this.el.addEventListener('click', () => {
+        // Nếu chính nút này đang ẩn thì không làm gì cả
+        if (this.el.getAttribute('visible') === false) return;
 
-      const currentScene = this.el.closest('a-entity[id]');
-      
-      // 1. Ẩn scene hiện tại và vô hiệu hóa click
-      if (currentScene) {
-        currentScene.setAttribute('visible', false);
-        // Tìm tất cả các phần tử có class clickable bên trong và đổi tên class
-        const clickables = currentScene.querySelectorAll('.clickable');
-        clickables.forEach(el => {
-          el.classList.remove('clickable');
-          el.classList.add('disabled-clickable'); // Lưu tạm để bật lại nếu cần
-        });
-      }
+        const currentScene = this.el.closest('a-entity[id]');
 
-      // 2. Hiện scene mục tiêu và kích hoạt click
-      if (this.data.target) {
-        this.data.target.setAttribute('visible', true);
-        const disabledClickables = this.data.target.querySelectorAll('.disabled-clickable');
-        disabledClickables.forEach(el => {
-          el.classList.remove('disabled-clickable');
-          el.classList.add('clickable');
+        // 1. Ẩn scene hiện tại và vô hiệu hóa click
+        if (currentScene) {
+          currentScene.setAttribute('visible', false);
+          // Tìm tất cả các phần tử có class clickable bên trong và đổi tên class
+          const clickables = currentScene.querySelectorAll('.clickable');
+          clickables.forEach(el => {
+            el.classList.remove('clickable');
+            el.classList.add('disabled-clickable'); // Lưu tạm để bật lại nếu cần
+          });
+        }
+
+        // 2. Hiện scene mục tiêu và kích hoạt click
+        if (this.data.target) {
+          this.data.target.setAttribute('visible', true);
+          if (this.data.target.id === "leaderboard") {
+            loadLeaderboard();
+            const ball1 = document.getElementById('ball');
+            if (ball1) {
+              ball1.setAttribute('visible', true);
+
+              const bong2 = ball1.querySelectorAll('a-sphere');
+              bong2.forEach((b) => {
+                const startPos = b.getAttribute('position');
+                b.setAttribute('animation', {
+                  property: 'position',
+                  to: `${startPos.x} ${startPos.y + 2} ${startPos.z}`,
+                  dur: 2000 + Math.random() * 1000,
+                  loop: true,
+                  easing: 'linear'
+                });
+              });
+            }
+          }
+          const disabledClickables = this.data.target.querySelectorAll('.disabled-clickable');
+          disabledClickables.forEach(el => {
+            el.classList.remove('disabled-clickable');
+            el.classList.add('clickable');
+          });
+        }
+      });
+    }
+  });
+
+  function getGiftName(gift) {
+
+    switch (gift) {
+      case "q1": return "Voucher 10%";
+      case "q2": return "Voucher 20%";
+      case "q3": return "Voucher 40%";
+      case "q4": return "Secret Mantara";
+      default: return gift;
+    }
+  }
+  function loadLeaderboard() {
+    db.collection("leaderboard")
+      .orderBy("score", "desc")
+      .limit(5)
+      .get()
+      .then(snapshot => {
+        const data = [];
+        snapshot.forEach(doc => {
+          data.push(doc.data());
         });
-      }
+        renderLeaderboard(data);
+      });
+  }
+  function renderLeaderboard(data) {
+    const container = document.querySelector('#leaderboard-list');
+    container.innerHTML = "";
+
+    data.forEach((item, i) => {
+      const text = document.createElement('a-text');
+
+      text.setAttribute(
+        'value',
+        `${i + 1}. ${item.name} | ${item.score} score | ${getGiftName(item.gift)}`
+      );
+
+      text.setAttribute('position', `0 ${0.5 - i * 0.3} 0`);
+      text.setAttribute('align', 'center');
+      text.setAttribute('color', 'yellow');
+
+      container.appendChild(text);
     });
   }
-});
+
   AFRAME.registerComponent('link-handler', {
     schema: { url: { type: "string" } },
     init: function () {
@@ -55,6 +147,31 @@
     }
   });
   //////QUIZ - phancauhoi
+  function setModelColor(el, color) {
+    const mesh = el.getObject3D('mesh');
+    if (!mesh) return;
+
+    mesh.traverse(node => {
+      if (node.isMesh) {
+        // lưu màu gốc nếu chưa có
+        if (!node.userData.originalColor) {
+          node.userData.originalColor = node.material.color.clone();
+        }
+        node.material.color.set(color);
+      }
+    });
+  }
+  function resetModelColor(el) {
+    const mesh = el.getObject3D('mesh');
+    if (!mesh) return;
+
+    mesh.traverse(node => {
+      if (node.isMesh && node.userData.originalColor) {
+        node.material.color.copy(node.userData.originalColor);
+      }
+    });
+  }
+  ////////////////
   AFRAME.registerComponent('quiz-logic', {
     init: function () {
       this.questions = [
@@ -85,7 +202,7 @@
           if (welAudio) {
             welAudio.currentTime = 0;
             welAudio.pause();
-        }
+          }
           // Khi Quiz vừa hiện ra, gọi loadQuestion để phát âm thanh câu 1
           this.loadQuestion();
         }
@@ -141,25 +258,45 @@
     },
 
     checkAnswer: function (selectedIndex) {
+      if (this.isAnswering) return;
+
       const currentQ = this.questions[this.currentQuestionIndex];
       const correctSound = document.querySelector("#correct");
       const wrongSound = document.querySelector("#wrong");
 
+      const selectedEl = this.optionButtons[selectedIndex];
+
       if (selectedIndex === currentQ.correct) {
+        this.isAnswering = true; // chỉ khóa khi đúng
+
         correctSound.currentTime = 0;
         correctSound.play();
 
+        setModelColor(selectedEl, '#00FF00');
+
         setTimeout(() => {
+          resetModelColor(selectedEl);
           this.currentQuestionIndex++;
           this.loadQuestion();
-        }, 800);
+          this.isAnswering = false;
+        }, 500);
+
       } else {
         wrongSound.currentTime = 0;
         wrongSound.play();
+
+        setModelColor(selectedEl, '#FF0000');
+
+        setTimeout(() => {
+          resetModelColor(selectedEl);
+          this.isAnswering = false;
+        }, 500);
+
         score--;
       }
     }
   });
+
   /////////////////plant
   AFRAME.registerComponent('laven', {
     init: function () {
@@ -282,6 +419,7 @@
           nuoc.currentTime = 0;
           nuoc.play();
         }
+
         setTimeout(() => wt.setAttribute('visible', false), 1000);
         // chạy animation
         ln.setAttribute('animation-mixer', {
@@ -308,76 +446,82 @@
   // Hàm startDivingEffect cần được đặt ngoài hoặc trong một nơi mà HTML gọi được
 
   AFRAME.registerComponent('diving-effect', {
-  init: function () {
-    const product = this.el;
-    // Sử dụng querySelector để tìm đúng các phần tử
-    const bubbles = document.querySelector('#bubbles');
-    const seaLife = document.querySelector('#sea-life');
-    const light = document.querySelector('#underwater-light');
-    const rewardButton = document.querySelector('#btn-get-reward');
+    init: function () {
+      const product = this.el;
+      // Sử dụng querySelector để tìm đúng các phần tử
+      const bubbles = document.querySelector('#bubbles');
+      const seaLife = document.querySelector('#sea-life');
+      const light = document.querySelector('#underwater-light');
+      const rewardButton = document.querySelector('#btn-get-reward');
 
-    product.addEventListener('animation-finished', () => {
-      // 1. Thu nhỏ sản phẩm
-      product.setAttribute('animation', {
-        property: 'scale',
-        from: '0.15 0.15 0.15',
-        to: '0.1 0.1 0.1',
-        dur: 3000,
-        easing: 'easeOutQuad'
+      product.addEventListener('animation-finished', () => {
+        // 1. Thu nhỏ sản phẩm
+        product.setAttribute('animation', {
+          property: 'scale',
+          from: '0.15 0.15 0.15',
+          to: '0.1 0.1 0.1',
+          dur: 3000,
+          easing: 'easeOutQuad'
+        });
+
+        // 2. Xử lý bong bóng
+        if (bubbles) {
+          bubbles.setAttribute('visible', true);
+          // Tìm tất cả sphere bên trong bubbles
+          const spheres = bubbles.querySelectorAll('a-sphere');
+          spheres.forEach((b) => {
+            const startPos = b.getAttribute('position');
+            b.setAttribute('animation', {
+              property: 'position',
+              to: `${startPos.x} ${startPos.y + 2} ${startPos.z}`,
+              dur: 2000 + Math.random() * 1000,
+              loop: true,
+              easing: 'linear'
+            });
+          });
+        }
+
+        // 3. Hiện cá và san hô (Sea Life)
+        setTimeout(() => {
+          if (seaLife) {
+            seaLife.setAttribute('visible', true);
+            console.log("Sea life is now visible"); // Debug kiểm tra
+          }
+          if (light) {
+            light.setAttribute('animation__brighten', {
+              property: 'light.intensity',
+              to: 2.5,
+              dur: 1500
+            });
+          }
+        }, 500);
+
+        // 4. Hiện nút nhận quà
+        rewardButton.setAttribute('animation', {
+          property: 'position',
+          to: '0 -0.5 0.3',
+          dur: 200,
+        });
+        setTimeout(() => {
+          if (rewardButton) {
+            rewardButton.setAttribute('visible', true);
+          }
+        }, 1000);
       });
 
-      // 2. Xử lý bong bóng
-      if (bubbles) {
-        bubbles.setAttribute('visible', true);
-        // Tìm tất cả sphere bên trong bubbles
-        const spheres = bubbles.querySelectorAll('a-sphere');
-        spheres.forEach((b) => {
-          const startPos = b.getAttribute('position');
-          b.setAttribute('animation', {
-            property: 'position',
-            to: `${startPos.x} ${startPos.y + 2} ${startPos.z}`,
-            dur: 2000 + Math.random() * 1000,
-            loop: true,
-            easing: 'linear'
-          });
+      // Sự kiện click nút nhận quà
+      if (rewardButton) {
+        rewardButton.addEventListener('click', () => {
+          const rewardSd = document.querySelector("#send");
+          if (rewardSd) {
+            rewardSd.currentTime = 0;
+            rewardSd.play().catch(e => console.log("Audio play failed", e));
+          }
+          rewardButton.classList.remove('clickable');
         });
       }
-
-      // 3. Hiện cá và san hô (Sea Life)
-      setTimeout(() => {
-        if (seaLife) {
-          seaLife.setAttribute('visible', true);
-          console.log("Sea life is now visible"); // Debug kiểm tra
-        }
-        if (light) {
-          light.setAttribute('animation__brighten', {
-            property: 'light.intensity',
-            to: 2.5,
-            dur: 1500
-          });
-        }
-      }, 500);
-
-      // 4. Hiện nút nhận quà
-      setTimeout(() => {
-        if (rewardButton) {
-          rewardButton.setAttribute('visible', true);
-        }
-      }, 1000);
-    });
-
-    // Sự kiện click nút nhận quà
-    if (rewardButton) {
-      rewardButton.addEventListener('click', () => {
-        const rewardSd = document.querySelector("#send");
-        if (rewardSd) {
-          rewardSd.currentTime = 0;
-          rewardSd.play().catch(e => console.log("Audio play failed", e));
-        }
-      });
     }
-  }
-});
+  });
   ////random-qua///////////////////////////////////////
   AFRAME.registerComponent('gift', {
     init: function () {
@@ -386,16 +530,24 @@
         if (evt.detail.name === 'visible' && this.el.getAttribute('visible') === true) {
           this.generateReward();
         }
+        const endlink = document.getElementById('endk');
+        endlink.setAttribute('animation', {
+          property: 'position',
+          to: '0 -0.8 0.5',
+          dur: 200,
+        });
       });
     },
     generateReward: function () {
+
       // Tính toán ngẫu nhiên
+      let nameGift = "";
       const randomNum = Math.floor(Math.random() * 100) + 1;
       let selectedGift = "";
-      if (randomNum <= 10) selectedGift = "#q4";
-      else if (randomNum <= 30) selectedGift = "#q3";
-      else if (randomNum <= 60) selectedGift = "#q2";
-      else selectedGift = "#q1";
+      if (randomNum <= 10) { selectedGift = "#q4"; nameGift = "q4"; }
+      else if (randomNum <= 30) { selectedGift = "#q3"; nameGift = "q3"; }
+      else if (randomNum <= 60) { selectedGift = "#q2"; nameGift = "q2"; }
+      else { selectedGift = "#q1"; nameGift = "q1"; }
       const giftDisplay = document.querySelector("#gift-harec");
       if (giftDisplay) {
         // Cập nhật model mới
@@ -412,6 +564,7 @@
           });
         }, { once: true });
       }
+      saveUserData(userName, phoneInput, score, nameGift);
     },
 
   });
@@ -432,6 +585,7 @@
       <a-asset-item id="link" src="asset/link.glb"></a-asset-item>
       <a-asset-item id="list" src="asset/list.glb"></a-asset-item>
       <a-asset-item id="gg" src="asset/ggb.glb"></a-asset-item>
+      <a-asset-item id="qv" src="asset/quayve.glb"></a-asset-item>
 
       <a-asset-item id="sp" src="asset/sp1.glb"></a-asset-item>
 
@@ -480,6 +634,7 @@
       <img id="c2" src="asset/ans/c2.png">
       <img id="c3" src="asset/ans/c3.png">
       <img id="c4" src="asset/ans/c4.png">
+      <img id="cd" src="asset/ans/cd.png" alt="">
 
     </a-assets>
     <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
@@ -491,7 +646,7 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
       <a-entity id="info" visible="true">
-        <a-entity class="clickable" id="logo-entity" gltf-model="#logo" position="0 0.5 -0.1" scale="0.6 0.6 0.6"
+        <a-entity class="clickable" id="logo-entity" gltf-model="#logo" position="0 0.5 0.5" scale="0.6 0.6 0.6"
           sound="src: #s1; autoplay: false; loop: false; volume: 1"
           animation-mixer="clip: *; loop: repeat; clampWhenFinished: true; enabled: false">
         </a-entity>
@@ -510,19 +665,41 @@
         <a-video src="#vid" transparent="true" position="-0.25 0.3 0" scale="0.6 0.6 0.6"></a-video>
         </a-gltf-model>
         <a-gltf-model class="clickable" scene-switch="target: #quiz" src="#start" position="0.35 0.6 0"
-          scale="0.2 0.2 0.2" rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model src="#link" position="0.35 0.3 0" scale="0.2 0.2 0.2" rotation="0 0 0" class="clickable"
+          scale="0.2 0.2 0.2"></a-gltf-model>
+        <a-gltf-model src="#link" position="0.35 0.3 0" scale="0.2 0.2 0.2" class="clickable"
           link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
-        <a-gltf-model scene-switch="target: #leaderboard" src="#list" position="0.35 0 0" scale="0.2 0.2 0.2"
-          rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model class="clickable" scene-switch="target: #leaderboard" src="#list" position="0.35 0 0"
+          scale="0.2 0.2 0.2"></a-gltf-model>
 
       </a-entity>
 
       <a-entity id="leaderboard" visible="false">
 
-        <a-text value="LEADERBOARD" align="center" position="0 0.5 0" color="yellow"></a-text>
-        <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#ans1" position="0 -0.5 0"
-          scale="0.05 0.05 0.05"></a-gltf-model>
+        <a-gltf-model src="#logo2" scale="0.2 0.2 0.2" position="0 0.8 0"></a-gltf-model>
+
+        <a-plane src="#cd" position="-0.3 0.6 0" scale="0.2 0.2 0.2"
+          material="transparent: true; shader: flat"></a-plane>
+        <a-plane src="#cd" position="0.3 0.6 0" scale="0.2 0.2 0.2" rotation="0 0 30"
+          material="transparent: true; shader: flat"></a-plane>
+
+        <a-entity id="ball" visible="true" position="0 0 0">
+          <a-sphere class="bong1" color="white" opacity="0.5" radius="0.05" position="0 -0.5 -0.2"
+            color="#00acc1"></a-sphere>
+          <a-sphere class="bong1" color="white" opacity="0.4" radius="0.03" position="0.3 -0.6 0 -0.2"
+            color="#00acc1"></a-sphere>
+          <a-sphere class="bong1" color="white" opacity="0.3" radius="0.04" position="-0.3 -0.5 -0.2"
+            color="#00acc1"></a-sphere>
+          <a-sphere class="bong1" color="white" opacity="0.2" radius="0.03" position="0.5 -0.6 -0.2"
+            color="#00acc1"></a-sphere>
+          <a-sphere class="bong1" color="white" opacity="0.2" radius="0.03" position="-0.5 -0.5 -0.2"
+            color="#00acc1"></a-sphere>
+        </a-entity>
+
+        <a-text value="LEADERBOARD" style="font-weight: bold" align="center" position="0 0.4 0" scale="0.5 0.5 0.5"
+          color="yellow"></a-text>
+        <a-entity id="leaderboard-list" align="left" position="0 0 0" scale="0.3 0.3 0.3 "></a-entity>
+        <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#qv" position="0 -0.5 0"
+          scale="0.3 0.3 0.3"></a-gltf-model>
 
       </a-entity>
 
@@ -532,14 +709,14 @@
           material="transparent: true; shader: flat">
         </a-plane>
         <a-entity id="question-voice-player" sound="src: ; volume: 1;autoplay: false; loop: false"></a-entity>
-        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.3 -0.1 0" scale="0.2 0.2 0.2"
-          rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans2" position="0.3 -0.1 0" scale="0.2 0.2 0.2"
-          rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans3" position="-0.3 -0.3 0" scale="0.2 0.2 0.2"
-          rotation="0 0 0"></a-gltf-model>
-        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.3 -0.3 0" scale="0.2 0.2 0.2"
-          rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#ans1" position="-0.35 -0.15 0" scale="0.3 0.3 0.3"
+          rotation="0 0 0" animation-mixer="clip: *; loop: once; timeScale: 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#ans2" position="0.35 -0.15 0.1" scale="0.3 0.3 0.3"
+          rotation="0 0 0" animation-mixer="clip: *; loop: once; timeScale: 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#ans3" position="-0.35 -0.5 0,1" scale="0.3 0.3 0.3"
+          rotation="0 0 0" animation-mixer="clip: *; loop: once; timeScale: 0"></a-gltf-model>
+        <a-gltf-model class="clickable quiz-option" src="#ans4" position="0.35 -0.5 0.1" scale="0.3 0.3 0.3"
+          rotation="0 0 0" animation-mixer="clip: *; loop: once; timeScale: 0"></a-gltf-model>
 
       </a-entity>
       <a-entity id="plant" visible="false" laven plants>
@@ -573,20 +750,20 @@
               animation-mixer="clip:*; loop:repeat">
             </a-gltf-model>
           </a-entity>
-          <a-gltf-model src="#la" position="0.6 -0.5 0.3" rotation="30 0 0" scale="0.03 0.03 0.03"></a-gltf-model>
-          <a-gltf-model src="#la" position="-0.8 -0.5 -0.3" rotation="30 0 0" scale="0.02 0.02 0.02"></a-gltf-model>
-          <a-gltf-model src="#la" position="-0.6 -0.2 -0.5" rotation="30 0 0" scale="0.03 0.03 0.03"></a-gltf-model>
+          <a-gltf-model src="#la" position="0.6 -0.5 -0.2" rotation="30 0 0" scale="0.03 0.03 0.03"></a-gltf-model>
+          <a-gltf-model src="#la" position="-0.8 -0.5 -0.4" rotation="30 0 0" scale="0.02 0.02 0.02"></a-gltf-model>
+          <a-gltf-model src="#la" position="-0.6 -0.2 -0.6" rotation="30 0 0" scale="0.03 0.03 0.03"></a-gltf-model>
         </a-entity>
 
-        <a-gltf-model id="btn-get-reward" src="#gg" class="clickable" visible="false" position="0 -0.5 0"
-          scale="0.3 0.3 0.3" scene-switch="target: #reward">
+        <a-gltf-model id="btn-get-reward" src="#gg" class="clickable" visible="false" position="0 -0.5 -0.2"
+          scale="0.25 0.25 0.25" scene-switch="target: #reward">
         </a-gltf-model>
       </a-entity>
 
       <a-entity id="reward" visible="false" gift sound="src: #send; poolSize: 1; autoplay: false; volume:0.5">
         <a-gltf-model id="gift-harec" position="0 0 0" scale="0.3 0.3 0.3" rotation="0 0 0">
         </a-gltf-model>
-        <a-gltf-model src="#link" position="0 -0.8 0" scale="0.3 0.3 0.3" rotation="0 0 0" class="clickable"
+        <a-gltf-model id="endk" src="#link" position="0 -0.8 0" scale="0.3 0.3 0.3" rotation="0 0 0" class="clickable"
           link-handler=" url: https://www.ctu.edu.vn/"></a-gltf-model>
       </a-entity>
 
@@ -602,7 +779,7 @@
     let isHandlingInput = false;//lock
     let isPhoneSubmitted = false;
     let userName = ""; // Biến lưu tên người dùng
-
+    let phoneInput = "";
     function handleInfoInput() {
       if (infoEntity.getAttribute('visible') === false) return;
       // 1. Nhập tên
@@ -612,7 +789,7 @@
         return;
       }
       // 2. Nhập SĐT
-      const phoneInput = prompt("Vui lòng nhập số điện thoại (10 số):");
+      phoneInput = prompt("Vui lòng nhập số điện thoại (10 số):");
 
       // Kiểm tra điều kiện
       if (phoneInput && phoneInput.length === 10) {
@@ -684,6 +861,8 @@
       }
     });
     let score = 9;
+
+
   </script>
 </body>
 
