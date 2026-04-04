@@ -68,6 +68,12 @@
           this.data.target.setAttribute('visible', true);
           if (this.data.target.id === "leaderboard") {
             loadLeaderboard();
+            const bck= document.getElementById('back');
+            bck.setAttribute('animation', {
+              property: 'position',
+              to: '0 -0.5 0.3',
+              dur: 200,
+            });
             const ball1 = document.getElementById('ball');
             if (ball1) {
               ball1.setAttribute('visible', true);
@@ -131,8 +137,8 @@
       );
 
       text.setAttribute('position', `0 ${0.5 - i * 0.3} 0`);
-      text.setAttribute('align', 'center');
-      text.setAttribute('color', 'yellow');
+      text.setAttribute('align', 'left');
+      text.setAttribute('color', 'white');
 
       container.appendChild(text);
     });
@@ -188,7 +194,6 @@
 
       this.optionButtons.forEach((btn, index) => {
         btn.addEventListener('click', (evt) => {
-          if (evt) evt.stopPropagation(); // Chống bấm xuyên
           if (this.el.getAttribute('visible') === true) {
             this.checkAnswer(index);
           }
@@ -573,9 +578,9 @@
 </head>
 
 <body>
-  <a-scene mindar-image="imageTargetSrc: targets.mind" color-space="sRGB"
+  <a-scene mindar-image="imageTargetSrc: targets.mind" scale="0.3 0.3 0.3" color-space="sRGB"
     renderer="colorManagement: true; exposure: 1.2" vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
+    device-orientation-permission-ui="enabled: false" >
 
     <a-assets>
       <a-asset-item id="logo" src="asset/logo.glb"></a-asset-item>
@@ -646,6 +651,7 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
       <a-entity id="info" visible="true">
+        
         <a-entity class="clickable" id="logo-entity" gltf-model="#logo" position="0 0.5 0.5" scale="0.6 0.6 0.6"
           sound="src: #s1; autoplay: false; loop: false; volume: 1"
           animation-mixer="clip: *; loop: repeat; clampWhenFinished: true; enabled: false">
@@ -697,8 +703,8 @@
 
         <a-text value="LEADERBOARD" style="font-weight: bold" align="center" position="0 0.4 0" scale="0.5 0.5 0.5"
           color="yellow"></a-text>
-        <a-entity id="leaderboard-list" align="left" position="0 0 0" scale="0.3 0.3 0.3 "></a-entity>
-        <a-gltf-model class="clickable" scene-switch="target: #welcome" src="#qv" position="0 -0.5 0"
+        <a-entity id="leaderboard-list" align="left" position="-0.5 0 0" scale="0.3 0.3 0.3 "></a-entity>
+        <a-gltf-model id="back" class="clickable" scene-switch="target: #welcome" src="#qv" position="0 -0.5 -0.6"
           scale="0.3 0.3 0.3"></a-gltf-model>
 
       </a-entity>
@@ -778,7 +784,7 @@
 
     let isHandlingInput = false;//lock
     let isPhoneSubmitted = false;
-    let userName = ""; // Biến lưu tên người dùng
+    let userName = ""; 
     let phoneInput = "";
     function handleInfoInput() {
       if (infoEntity.getAttribute('visible') === false) return;
@@ -827,7 +833,6 @@
     logo.addEventListener('click', function () {
       if (isPhoneSubmitted) {
         infoEntity.setAttribute('visible', 'false');
-        infoEntity.classList.remove('clickable');
         logo.classList.remove('clickable');
         welcomeEntity.setAttribute('visible', 'true');
         const vid = document.getElementById('vid');
