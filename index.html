@@ -412,13 +412,6 @@
       const rewardButton = document.querySelector('#btn-get-reward');
 
       product.addEventListener('animation-finished', () => {
-        product.setAttribute('animation', { // 1. Thu nhỏ sản phẩm
-          property: 'scale',
-          from: '0.15 0.15 0.15',
-          to: '0.12 0.12 0.12',
-          dur: 3000,
-          easing: 'easeOutQuad'
-        });
         if (bubbles) {                            // 2. Xử lý bong bóng
           bubbles.setAttribute('visible', true);
           const spheres = bubbles.querySelectorAll('a-sphere');// Tìm tất cả sphere bên trong bubbles
@@ -639,7 +632,7 @@
         <a-text value="LEADERBOARD" style="font-weight: bold" align="center" position="0 0.4 0" scale="0.5 0.5 0.5"
           color="yellow"></a-text>
         <a-entity id="leaderboard-list" align="left" position="-0.5 0 0" scale="0.3 0.3 0.3 "></a-entity>
-        <a-gltf-model id="back" class="clickable" scene-switch="target: #welcome" src="#qv" position="0 -0.5 -0.6"
+        <a-gltf-model id="back" class="clickable" scene-switch="target: #welcome" src="#qv" position="0 -3 -0.6"
           scale="0.3 0.3 0.3"></a-gltf-model>
 
       </a-entity>
