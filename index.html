@@ -408,7 +408,7 @@
       const product = this.el;
       const bubbles = document.querySelector('#bubbles');
       const seaLife = document.querySelector('#sea-life');
-      const light = document.querySelector('underwater-light');
+      const light = document.querySelector('.underwater-light');
       const rewardButton = document.querySelector('#btn-get-reward');
 
       product.addEventListener('animation-finished', () => {
@@ -430,13 +430,13 @@
           if (seaLife) {
             seaLife.setAttribute('visible', true); // 3. Hiện cá và san hô (Sea Life)
           }
-          if (light) {
+          light.forEach((light, i) => {
             light.setAttribute('animation__brighten', {
               property: 'light.intensity',
-              to: 2.5,
+              to: [20][i],
               dur: 1500
             });
-          }
+          });
         }, 500);
         rewardButton.setAttribute('animation', {// 4. Hiện nút nhận quà
           property: 'position',
@@ -662,20 +662,21 @@
         </a-entity>
       </a-entity>
       <!-- light -->
-      <a-entity class="underwater-light" light="type: spot; color: #00e5ff; intensity: 0; angle: 30; penumbra: 0.5"
-        position="2 5 -2" look-at="#sp">
+      <a-entity class="underwater-light"
+        light="type: directional; color: #ffffff; intensity: 0; angle: 30; penumbra: 0.5" position="2 5 -2"
+        look-at="#main-product">
       </a-entity>
 
-      <a-entity class="underwater-light" light="type: spot; color: #ffffff; intensity: 0; angle: 35; penumbra: 0.5"
-        position="-2 1.5 -3" look-at="#sp">
+      <a-entity class="underwater-light" light="type: spot; color: #342E77; intensity: 0; angle: 35; penumbra: 0.5"
+        position="-2 1.5 -3" look-at="#main-product">
       </a-entity>
 
-      <a-entity class="underwater-light" light="type: spot; color: #ffae00; intensity: 0; angle: 40; penumbra: 0.5"
-        position="3 1.5 3" look-at="#sp">
+      <a-entity class="underwater-light" light="type: spot; color: #ffa600; intensity: 0; angle: 40; penumbra: 0.5"
+        position="3 1.5 3" look-at="#main-product">
       </a-entity>
 
-      <a-entity class="underwater-light" light="type: spot; color: #00e5ff; intensity: 0; angle: 30; penumbra: 0.5"
-        position="-2 4 -2" look-at="#sp">
+      <a-entity class="underwater-light" light="type: spot; color: #002396; intensity: 0; angle: 30; penumbra: 0.5"
+        position="-2 4 -2" look-at="#main-product">
       </a-entity>
 
 
