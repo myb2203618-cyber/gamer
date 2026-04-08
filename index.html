@@ -130,7 +130,7 @@
       );
       text.setAttribute('position', `0 ${0.5 - i * 0.3} 0`);
       text.setAttribute('align', 'left');
-      text.setAttribute('color', '#f7eb05');
+      text.setAttribute('color', 'black');
       container.appendChild(text);
     });
   }
@@ -615,6 +615,7 @@
           material="transparent: true; shader: flat"></a-plane>
         <a-plane src="#cd" position="0.3 0.6 0" scale="0.2 0.2 0.2" rotation="0 0 30"
           material="transparent: true; shader: flat"></a-plane>
+        <a-plane color="#9782ff" opacity="0.85" width="1.1" height="0.6" position="0 -0.02 0"></a-plane>
 
         <a-entity id="ball" visible="true" position="0 0 0">
           <a-sphere class="bong1" color="white" opacity="0.5" radius="0.05" position="0 -0.5 -0.2"
